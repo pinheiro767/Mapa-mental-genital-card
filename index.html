@@ -623,6 +623,818 @@
                     </ul>`
                 },
                 {
+                    id: 'estrogenio',
+                    icon: '💖',
+                    title: 'Estrogênio',
+                    content: `<ul>
+                        <li>Produzido pelos ovários</li>
+                        <li>Desenvolvimento sexual feminino</li>
+                        <li>Características sexuais secundárias</li>
+                        <li>Desenvolvimento das mamas</li>
+                        <li>Alargamento dos quadris</li>
+                        <li>Regulação ciclo menstrual</li>
+                    </ul>`
+                },
+                {
+                    id: 'progesterona',
+                    icon: '🤰',
+                    title: 'Progesterona',
+                    content: `<ul>
+                        <li>Produzida pelo corpo lúteo</li>
+                        <li>Preparação uterina (implantação)</li>
+                        <li>Manutenção da gravidez</li>
+                        <li>Espessamento endométrio</li>
+                        <li>Secreção endometrial</li>
+                        <li>Desenvolvimento glândulas mamárias</li>
+                    </ul>`
+                },
+                {
+                    id: 'ciclo',
+                    icon: '🔄',
+                    title: 'Ciclo Menstrual',
+                    content: `<ul>
+                        <li>Duração média: 28 dias</li>
+                        <li>Fase folicular (dias 1-14)</li>
+                        <li>Ovulação (dia ~14)</li>
+                        <li>Fase lútea (dias 15-28)</li>
+                        <li>Menstruação (dias 1-5)</li>
+                        <li>Regulado por hormônios</li>
+                    </ul>`
+                }
+            ]
+        };
+
+        // Criar estrelas
+        function createStars() {
+            const starsContainer = document.getElementById('stars');
+            for (let i = 0; i < 100; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.animationDelay = Math.random() * 3 + 's';
+                starsContainer.appendChild(star);
+            }
+        }
+
+        function selectSystem(system) {
+            currentSystem = system;
+            revealedCards.clear();
+            
+            // Atualizar visual dos cards de seleção
+            document.querySelectorAll('.system-card').forEach(card => {
+                card.classList.remove('active');
+            });
+            document.querySelector(`[data-system="${system}"]`).classList.add('active');
+            
+            // Renderizar cards
+            renderCards();
+            updateStats();
+        }
+
+        function renderCards() {
+            const container = document.getElementById('cards-container');
+            container.innerHTML = '';
+            
+            if (!currentSystem) {
+                return;
+            }
+            
+            const organs = organsData[currentSystem];
+            
+            organs.forEach(organ => {
+                const card = document.createElement('div');
+                card.className = 'organ-card';
+                card.onclick = () => revealCard(organ.id);
+                
+                card.innerHTML = `
+                    <div class="reveal-badge">${revealedCards.has(organ.id) ? '✓ Revelado' : '🔒 Clique'}</div>
+                    <div class="card-header">
+                        <div class="card-icon">${organ.icon}</div>
+                        <h3 class="card-title">${organ.title}</h3>
+                    </div>
+                    <div class="card-content">${organ.content}</div>
+                `;
+                
+                if (revealedCards.has(organ.id)) {
+                    card.classList.add('revealed');
+                }
+                
+                container.appendChild(card);
+            });
+        }
+
+        function revealCard(cardId) {
+            if (!revealedCards.has(cardId)) {
+                revealedCards.add(cardId);
+                renderCards();
+                updateStats();
+                checkCompletion();
+            }
+        }
+
+        function updateStats() {
+            const totalCards = currentSystem ? organsData[currentSystem].length : 0;
+            document.getElementById('revealed-count').textContent = revealedCards.size;
+            document.getElementById('total-count').textContent = totalCards;
+        }
+
+        function checkCompletion() {
+            if (currentSystem && revealedCards.size === organsData[currentSystem].length) {
+                const successMsg = document.getElementById('success-message');
+                successMsg.textContent = config.success_message || defaultConfig.success_message;
+                successMsg.style.display = 'block';
+            }
+        }
+
+        function resetGame() {
+            currentSystem = null;
+            revealedCards.clear();
+            document.querySelectorAll('.system-card').forEach(card => {
+                card.classList.remove('active');
+            });
+            document.getElementById('cards-container').innerHTML = '';
+            document.getElementById('success-message').style.display = 'none';
+            updateStats();
+        }
+
+        // Inicializar SDK
+        if (window.elementSdk) {
+            window.elementSdk.init({
+                defaultConfig: defaultConfig,
+                onConfigChange: async (newConfig) => {
+                    config = { ...defaultConfig, ...newConfig };
+                    updateUIFromConfig();
+                },
+                mapToCapabilities: (cfg) => ({
+                    recolorables: [
+                        {
+                            get: () => cfg.primary_color || defaultConfig.primary_color,
+                            set: (value) => {
+                                cfg.primary_color = value;
+                                window.elementSdk.setConfig({ primary_color: value });
+                            }
+                        },
+                        {
+                            get: () => cfg.success_color || defaultConfig.success_color,
+                            set: (value) => {
+                                cfg.success_color = value;
+                                window.elementSdk.setConfig({ success_color: value });
+                            }
+                        },
+                        {
+                            get: () => cfg.background_color || defaultConfig.background_color,
+                            set: (value) => {
+                                cfg.background_color = value;
+                                window.elementSdk.setConfig({ background_color: value });
+                            }
+                        },
+                        {
+                            get: () => cfg.text_color || defaultConfig.text_color,
+                            set: (value) => {
+                                cfg.text_color = value;
+                                window.elementSdk.setConfig({ text_color: value });
+                            }
+                        }
+                    ],
+                    borderables: [],
+                    fontEditable: undefined,
+                    fontSizeable: undefined
+                }),
+                mapToEditPanelValues: (cfg) => new Map([
+                    ["game_title", cfg.game_title || defaultConfig.game_title],
+                    ["subtitle", cfg.subtitle || defaultConfig.subtitle],
+                    ["success_message", cfg.success_message || defaultConfig.success_message]
+                ])
+            });
+        }
+
+        function updateUIFromConfig() {
+            document.getElementById('game-title').innerHTML = config.game_title || defaultConfig.game_title;
+            document.getElementById('subtitle').textContent = config.subtitle || defaultConfig.subtitle;
+        }
+
+        // Inicializar
+        createStars();
+        updateStats();
+    </script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Explorador do Sistema Genital</title>
+  <script src="/_sdk/element_sdk.js"></script>
+  <style>
+        body {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            font-family: 'Poppins', 'Segoe UI', sans-serif;
+        }
+        
+        html {
+            height: 100%;
+            width: 100%;
+        }
+        
+        .app-wrapper {
+            width: 100%;
+            min-height: 100%;
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            padding: 2rem 1rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            overflow-x: hidden;
+        }
+        
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+        
+        .star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 3s infinite;
+        }
+        
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+        
+        h1 {
+            color: #fff;
+            text-align: center;
+            margin: 0 0 0.5rem 0;
+            font-size: 2.5rem;
+            font-weight: 800;
+            text-shadow: 0 0 20px rgba(138, 43, 226, 0.8), 0 0 40px rgba(138, 43, 226, 0.5);
+            letter-spacing: 2px;
+        }
+        
+        .subtitle {
+            color: #a8a8f0;
+            text-align: center;
+            margin-bottom: 2rem;
+            font-size: 1.1rem;
+            font-weight: 300;
+        }
+        
+        .system-selector {
+            display: flex;
+            gap: 2rem;
+            margin-bottom: 3rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .system-card {
+            width: 280px;
+            height: 200px;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.2) 0%, rgba(168, 85, 247, 0.2) 100%);
+            border: 2px solid rgba(99, 102, 241, 0.5);
+            border-radius: 20px;
+            padding: 2rem;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+        
+        .system-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transform: rotate(45deg);
+            transition: all 0.5s;
+        }
+        
+        .system-card:hover::before {
+            left: 100%;
+        }
+        
+        .system-card:hover {
+            transform: translateY(-10px) scale(1.05);
+            border-color: rgba(138, 43, 226, 0.8);
+            box-shadow: 0 20px 60px rgba(138, 43, 226, 0.4);
+        }
+        
+        .system-card.active {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.4) 0%, rgba(168, 85, 247, 0.4) 100%);
+            border-color: #8a2be2;
+            box-shadow: 0 0 40px rgba(138, 43, 226, 0.6);
+            transform: scale(1.05);
+        }
+        
+        .system-card .icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            filter: drop-shadow(0 0 10px currentColor);
+        }
+        
+        .system-card h2 {
+            color: #fff;
+            font-size: 1.3rem;
+            margin: 0;
+            font-weight: 700;
+        }
+        
+        .cards-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 2rem;
+            width: 100%;
+            max-width: 1400px;
+            margin-bottom: 2rem;
+        }
+        
+        .organ-card {
+            background: linear-gradient(135deg, rgba(30, 30, 60, 0.9) 0%, rgba(20, 20, 40, 0.9) 100%);
+            border: 2px solid rgba(138, 43, 226, 0.3);
+            border-radius: 20px;
+            padding: 2rem;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            backdrop-filter: blur(15px);
+            position: relative;
+            overflow: hidden;
+            min-height: 250px;
+        }
+        
+        .organ-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at top right, rgba(138, 43, 226, 0.2), transparent 60%);
+            opacity: 0;
+            transition: opacity 0.4s;
+            pointer-events: none;
+        }
+        
+        .organ-card:hover::after {
+            opacity: 1;
+        }
+        
+        .organ-card:hover {
+            transform: translateY(-8px);
+            border-color: rgba(138, 43, 226, 0.8);
+            box-shadow: 0 15px 50px rgba(138, 43, 226, 0.3);
+        }
+        
+        .organ-card.revealed {
+            border-color: #00ff88;
+            background: linear-gradient(135deg, rgba(0, 255, 136, 0.15) 0%, rgba(30, 30, 60, 0.95) 100%);
+            box-shadow: 0 0 30px rgba(0, 255, 136, 0.4);
+        }
+        
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .card-icon {
+            font-size: 2.5rem;
+            filter: drop-shadow(0 0 8px currentColor);
+        }
+        
+        .card-title {
+            color: #fff;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin: 0;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+        }
+        
+        .card-content {
+            color: #b8b8d8;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            max-height: 0;
+            opacity: 0;
+            overflow: hidden;
+            transition: all 0.5s ease;
+        }
+        
+        .organ-card.revealed .card-content {
+            max-height: 1000px;
+            opacity: 1;
+            margin-top: 1rem;
+        }
+        
+        .card-content ul {
+            list-style: none;
+            padding: 0;
+            margin: 0.5rem 0;
+        }
+        
+        .card-content li {
+            padding: 0.5rem 0;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+        
+        .card-content li::before {
+            content: '▸';
+            position: absolute;
+            left: 0;
+            color: #8a2be2;
+            font-weight: bold;
+        }
+        
+        .reveal-badge {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: linear-gradient(135deg, #8a2be2, #da70d6);
+            color: white;
+            padding: 0.4rem 1rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            opacity: 1;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(138, 43, 226, 0.4);
+        }
+        
+        .organ-card.revealed .reveal-badge {
+            background: linear-gradient(135deg, #00ff88, #00cc88);
+            box-shadow: 0 4px 15px rgba(0, 255, 136, 0.4);
+        }
+        
+        .stats-container {
+            display: flex;
+            gap: 2rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, rgba(138, 43, 226, 0.3) 0%, rgba(218, 112, 214, 0.3) 100%);
+            border: 2px solid rgba(138, 43, 226, 0.5);
+            border-radius: 15px;
+            padding: 1.5rem 2.5rem;
+            backdrop-filter: blur(10px);
+            text-align: center;
+            min-width: 180px;
+        }
+        
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: #fff;
+            text-shadow: 0 0 20px rgba(138, 43, 226, 0.8);
+            margin: 0;
+        }
+        
+        .stat-label {
+            color: #d8d8f0;
+            font-size: 0.95rem;
+            margin-top: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        button {
+            padding: 1rem 3rem;
+            font-size: 1.1rem;
+            background: linear-gradient(135deg, #8a2be2 0%, #da70d6 100%);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: 700;
+            box-shadow: 0 10px 30px rgba(138, 43, 226, 0.4);
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(138, 43, 226, 0.6);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        #success-message {
+            display: none;
+            margin-top: 2rem;
+            padding: 2rem 3rem;
+            background: linear-gradient(135deg, rgba(0, 255, 136, 0.3) 0%, rgba(0, 204, 136, 0.3) 100%);
+            border: 2px solid #00ff88;
+            color: white;
+            border-radius: 20px;
+            font-size: 1.5rem;
+            font-weight: 700;
+            box-shadow: 0 10px 40px rgba(0, 255, 136, 0.4);
+            animation: successSlide 0.5s ease;
+            backdrop-filter: blur(10px);
+            text-align: center;
+        }
+        
+        @keyframes successSlide {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            .system-card {
+                width: 100%;
+                max-width: 280px;
+            }
+            
+            .cards-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .stat-card {
+                min-width: 140px;
+                padding: 1rem 1.5rem;
+            }
+            
+            .stat-number {
+                font-size: 2rem;
+            }
+        }
+    </style>
+  <div class="app-wrapper">
+   <div class="stars" id="stars"></div>
+   <h1 id="game-title">🧬 EXPLORADOR DO SISTEMA GENITAL</h1>
+   <p class="subtitle" id="subtitle">Escolha um sistema e clique nos cards para revelar suas características</p>
+   <div class="system-selector">
+    <div class="system-card" data-system="masculino" onclick="selectSystem('masculino')">
+     <div class="icon">
+      🔵
+     </div>
+     <h2>Sistema Masculino</h2>
+    </div>
+    <div class="system-card" data-system="feminino" onclick="selectSystem('feminino')">
+     <div class="icon">
+      🔴
+     </div>
+     <h2>Sistema Feminino</h2>
+    </div>
+   </div>
+   <div class="stats-container">
+    <div class="stat-card">
+     <div class="stat-number" id="revealed-count">
+      0
+     </div>
+     <div class="stat-label">
+      Cards Revelados
+     </div>
+    </div>
+    <div class="stat-card">
+     <div class="stat-number" id="total-count">
+      0
+     </div>
+     <div class="stat-label">
+      Total de Cards
+     </div>
+    </div>
+   </div>
+   <div class="cards-container" id="cards-container"></div>
+   <div id="success-message"></div><button onclick="resetGame()">🔄 Reiniciar Exploração</button>
+  </div>
+  <script>
+        const defaultConfig = {
+            game_title: "🧬 EXPLORADOR DO SISTEMA GENITAL",
+            subtitle: "Escolha um sistema e clique nos cards para revelar suas características",
+            success_message: "🎉 Incrível! Você explorou todos os órgãos!",
+            primary_color: "#8a2be2",
+            secondary_color: "#da70d6",
+            success_color: "#00ff88",
+            background_color: "#0f0c29",
+            text_color: "#ffffff"
+        };
+
+        let config = { ...defaultConfig };
+        let currentSystem = null;
+        let revealedCards = new Set();
+
+        const organsData = {
+            masculino: [
+                {
+                    id: 'testiculos',
+                    icon: '🔬',
+                    title: 'Testículos',
+                    content: `<ul>
+                        <li>Localização: bolsa escrotal</li>
+                        <li>Temperatura: 2-3°C abaixo do corpo</li>
+                        <li>Formato oval (4-5 cm cada)</li>
+                        <li>Espermatogênese (produção espermatozoides)</li>
+                        <li>Células de Leydig (produção testosterona)</li>
+                        <li>Túbulos seminíferos</li>
+                    </ul>`
+                },
+                {
+                    id: 'epidimo',
+                    icon: '🧪',
+                    title: 'Epidídimo',
+                    content: `<ul>
+                        <li>Estrutura tubular enovelada</li>
+                        <li>Localizado sobre os testículos</li>
+                        <li>Comprimento: ~6 metros</li>
+                        <li>Maturação de espermatozoides (10-14 dias)</li>
+                        <li>Armazenamento temporário</li>
+                        <li>Desenvolvimento da motilidade</li>
+                    </ul>`
+                },
+                {
+                    id: 'ducto',
+                    icon: '🔗',
+                    title: 'Ducto Deferente',
+                    content: `<ul>
+                        <li>Tubo muscular de 30-35 cm</li>
+                        <li>Parede espessa e resistente</li>
+                        <li>Condução de espermatozoides</li>
+                        <li>Movimentos peristálticos</li>
+                        <li>Conecta epidídimo à uretra</li>
+                    </ul>`
+                },
+                {
+                    id: 'vesiculas',
+                    icon: '💧',
+                    title: 'Vesículas Seminais',
+                    content: `<ul>
+                        <li>Glândulas pares (2 unidades)</li>
+                        <li>Produzem 60-70% do volume seminal</li>
+                        <li>Líquido rico em frutose</li>
+                        <li>Nutrição e energia dos espermatozoides</li>
+                        <li>Prostaglandinas (motilidade)</li>
+                    </ul>`
+                },
+                {
+                    id: 'prostata',
+                    icon: '⚙️',
+                    title: 'Próstata',
+                    content: `<ul>
+                        <li>Glândula em forma de noz</li>
+                        <li>Localização: abaixo da bexiga</li>
+                        <li>Tamanho: ~3-4 cm diâmetro</li>
+                        <li>Produz 20-30% do volume seminal</li>
+                        <li>Líquido prostático alcalino</li>
+                        <li>Neutraliza acidez vaginal</li>
+                    </ul>`
+                },
+                {
+                    id: 'bulbo',
+                    icon: '💦',
+                    title: 'Glândulas Bulbouretrais',
+                    content: `<ul>
+                        <li>Glândulas de Cowper</li>
+                        <li>Tamanho de uma ervilha</li>
+                        <li>Líquido pré-ejaculatório</li>
+                        <li>Lubrificação da uretra</li>
+                        <li>Neutralização acidez uretral</li>
+                    </ul>`
+                },
+                {
+                    id: 'uretra',
+                    icon: '🚰',
+                    title: 'Uretra',
+                    content: `<ul>
+                        <li>Canal de 18-20 cm</li>
+                        <li>Passagem de urina e sêmen</li>
+                        <li>3 regiões: prostática, membranosa, esponjosa</li>
+                        <li>Esfíncter uretral (controle)</li>
+                    </ul>`
+                },
+                {
+                    id: 'penis',
+                    icon: '🎯',
+                    title: 'Pênis',
+                    content: `<ul>
+                        <li>Órgão copulador externo</li>
+                        <li>Corpos cavernosos (2 estruturas)</li>
+                        <li>Corpo esponjoso (1 estrutura)</li>
+                        <li>Ereção por ingurgitamento sanguíneo</li>
+                        <li>Glande (extremidade sensível)</li>
+                    </ul>`
+                },
+                {
+                    id: 'testosterona',
+                    icon: '💪',
+                    title: 'Testosterona',
+                    content: `<ul>
+                        <li>Hormônio androgênico principal</li>
+                        <li>Características sexuais secundárias</li>
+                        <li>Crescimento de pelos</li>
+                        <li>Desenvolvimento muscular</li>
+                        <li>Engrossamento da voz</li>
+                        <li>Espermatogênese e libido</li>
+                    </ul>`
+                }
+            ],
+            feminino: [
+                {
+                    id: 'ovarios',
+                    icon: '🥚',
+                    title: 'Ovários',
+                    content: `<ul>
+                        <li>Glândulas pares (formato amêndoa)</li>
+                        <li>Tamanho: 3-5 cm cada</li>
+                        <li>Oogênese (produção óvulos)</li>
+                        <li>Folículos ovarianos</li>
+                        <li>Corpo lúteo (após ovulação)</li>
+                        <li>Produção estrogênio/progesterona</li>
+                    </ul>`
+                },
+                {
+                    id: 'tubas',
+                    icon: '🎺',
+                    title: 'Tubas Uterinas',
+                    content: `<ul>
+                        <li>Trompas de Falópio</li>
+                        <li>Tubos musculares (~10-12 cm)</li>
+                        <li>Fímbrias (extremidades franjadas)</li>
+                        <li>Local da fertilização</li>
+                        <li>Transporte do óvulo (cílios)</li>
+                        <li>Movimentos peristálticos</li>
+                    </ul>`
+                },
+                {
+                    id: 'utero',
+                    icon: '🏠',
+                    title: 'Útero',
+                    content: `<ul>
+                        <li>Órgão muscular oco (formato pera)</li>
+                        <li>Tamanho: 7-8 cm comprimento</li>
+                        <li>Endométrio (camada interna)</li>
+                        <li>Miométrio (camada muscular)</li>
+                        <li>Gestação (desenvolvimento fetal)</li>
+                        <li>Menstruação (descamação)</li>
+                    </ul>`
+                },
+                {
+                    id: 'vagina',
+                    icon: '🌸',
+                    title: 'Vagina',
+                    content: `<ul>
+                        <li>Canal muscular elástico (8-10 cm)</li>
+                        <li>Conecta útero ao exterior</li>
+                        <li>Canal do parto</li>
+                        <li>Órgão copulador</li>
+                        <li>pH ácido (proteção)</li>
+                        <li>Lubrificação natural</li>
+                    </ul>`
+                },
+                {
+                    id: 'vulva',
+                    icon: '🌺',
+                    title: 'Vulva',
+                    content: `<ul>
+                        <li>Genitália externa feminina</li>
+                        <li>Monte púbico</li>
+                        <li>Grandes lábios (proteção externa)</li>
+                        <li>Pequenos lábios (proteção interna)</li>
+                        <li>Clitóris (órgão erétil sensorial)</li>
+                        <li>Glândulas de Bartholin</li>
+                    </ul>`
+                },
+                {
                     id: 'estrogênio',
                     icon: '💖',
                     title: 'Estrogênio',
@@ -1406,10 +2218,10 @@
        <div class="target sub-target" data-accept="Epidídimo">
         → (Arrastar aqui)
        </div>
-       <div class="target sub-sub-target">
+       <div class="sub-sub-target">
         → → Estrutura tubular enovelada
        </div>
-       <div class="target sub-sub-target">
+       <div class="sub-sub-target">
         → → Localização: sobre os testículos
        </div>
        <div class="target sub-sub-target">
@@ -1701,7 +2513,7 @@
         → (Arrastar aqui)
        </div>
        <div class="target sub-sub-target">
-        → → Canal muscular elástico (8-10 cm)
+        → → Canal muscular el��stico (8-10 cm)
        </div>
        <div class="target sub-sub-target">
         → → Conecta útero ao exterior
@@ -3492,7 +4304,7 @@
   </div>
   <script>
         const defaultConfig = {
-            game_title: "🧬 Monte o Mapa Mental do Sistema Genital!",
+            game_title: "�� Monte o Mapa Mental do Sistema Genital!",
             instructions: "Arraste as palavras da esquerda para os círculos no mapa mental! 🎯",
             success_message: "🎉 Parabéns! Você completou o mapa mental corretamente!",
             primary_color: "#667eea",
@@ -4233,10 +5045,10 @@
        <div class="target" data-accept="Função Principal">
         (Arrastar aqui)
        </div>
-       <div class="target sub-sub-target">
+       <div class="sub-sub-target">
         → → Produção de espermatozoides
        </div>
-       <div class="target sub-sub-target">
+       <div class="sub-sub-target">
         → → Produção de hormônios
        </div>
        <div class="target" data-accept="Órgãos Principais">
@@ -4245,31 +5057,31 @@
        <div class="target sub-target" data-accept="Testículos">
         → (Arrastar aqui)
        </div>
-       <div class="target sub-sub-target">
+       <div class="sub-sub-target">
         → → Localização: bolsa escrotal
        </div>
-       <div class="target sub-sub-target">
+       <div class="sub-sub-target">
         → → Temperatura: 2-3°C abaixo do corpo
        </div>
-       <div class="target sub-sub-target">
+       <div class="sub-sub-target">
         → → Formato oval (4-5 cm cada)
        </div>
-       <div class="target sub-sub-target">
+       <div class="sub-sub-target">
         → → Espermatogênese (produção esperm.)
        </div>
-       <div class="target sub-sub-target">
+       <div class="sub-sub-target">
         → → Células de Leydig (prod. testosterona)
        </div>
-       <div class="target sub-sub-target">
+       <div class="sub-sub-target">
         → → Túbulos seminíferos (local produção)
        </div>
        <div class="target sub-target" data-accept="Epidídimo">
         → (Arrastar aqui)
        </div>
-       <div class="target sub-sub-target">
+       <div class="sub-sub-target">
         → → Estrutura tubular enovelada
        </div>
-       <div class="target sub-sub-target">
+       <div class="sub-sub-target">
         → → Localização: sobre os testículos
        </div>
        <div class="target sub-sub-target">
@@ -4660,5 +5472,5 @@
             });
         }
     </script>
- <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9a3b6fefa067725a',t:'MTc2NDAxMzg0Ny4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
-</html>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9a3b7d9c4562725a',t:'MTc2NDAxNDQwNy4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+ </html>
