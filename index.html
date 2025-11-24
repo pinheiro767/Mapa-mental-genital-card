@@ -1,0 +1,4664 @@
+<!doctype html>
+<html lang="pt-br">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Explorador do Sistema Genital</title>
+  <script src="/_sdk/element_sdk.js"></script>
+  <style>
+        body {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            font-family: 'Poppins', 'Segoe UI', sans-serif;
+        }
+        
+        html {
+            height: 100%;
+            width: 100%;
+        }
+        
+        .app-wrapper {
+            width: 100%;
+            min-height: 100%;
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            padding: 2rem 1rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            overflow-x: hidden;
+        }
+        
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+        
+        .star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 3s infinite;
+        }
+        
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+        
+        h1 {
+            color: #fff;
+            text-align: center;
+            margin: 0 0 0.5rem 0;
+            font-size: 2.5rem;
+            font-weight: 800;
+            text-shadow: 0 0 20px rgba(138, 43, 226, 0.8), 0 0 40px rgba(138, 43, 226, 0.5);
+            letter-spacing: 2px;
+        }
+        
+        .subtitle {
+            color: #a8a8f0;
+            text-align: center;
+            margin-bottom: 2rem;
+            font-size: 1.1rem;
+            font-weight: 300;
+        }
+        
+        .system-selector {
+            display: flex;
+            gap: 2rem;
+            margin-bottom: 3rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .system-card {
+            width: 280px;
+            height: 200px;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.2) 0%, rgba(168, 85, 247, 0.2) 100%);
+            border: 2px solid rgba(99, 102, 241, 0.5);
+            border-radius: 20px;
+            padding: 2rem;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+        
+        .system-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transform: rotate(45deg);
+            transition: all 0.5s;
+        }
+        
+        .system-card:hover::before {
+            left: 100%;
+        }
+        
+        .system-card:hover {
+            transform: translateY(-10px) scale(1.05);
+            border-color: rgba(138, 43, 226, 0.8);
+            box-shadow: 0 20px 60px rgba(138, 43, 226, 0.4);
+        }
+        
+        .system-card.active {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.4) 0%, rgba(168, 85, 247, 0.4) 100%);
+            border-color: #8a2be2;
+            box-shadow: 0 0 40px rgba(138, 43, 226, 0.6);
+            transform: scale(1.05);
+        }
+        
+        .system-card .icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            filter: drop-shadow(0 0 10px currentColor);
+        }
+        
+        .system-card h2 {
+            color: #fff;
+            font-size: 1.3rem;
+            margin: 0;
+            font-weight: 700;
+        }
+        
+        .cards-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 2rem;
+            width: 100%;
+            max-width: 1400px;
+            margin-bottom: 2rem;
+        }
+        
+        .organ-card {
+            background: linear-gradient(135deg, rgba(30, 30, 60, 0.9) 0%, rgba(20, 20, 40, 0.9) 100%);
+            border: 2px solid rgba(138, 43, 226, 0.3);
+            border-radius: 20px;
+            padding: 2rem;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            backdrop-filter: blur(15px);
+            position: relative;
+            overflow: hidden;
+            min-height: 250px;
+        }
+        
+        .organ-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at top right, rgba(138, 43, 226, 0.2), transparent 60%);
+            opacity: 0;
+            transition: opacity 0.4s;
+            pointer-events: none;
+        }
+        
+        .organ-card:hover::after {
+            opacity: 1;
+        }
+        
+        .organ-card:hover {
+            transform: translateY(-8px);
+            border-color: rgba(138, 43, 226, 0.8);
+            box-shadow: 0 15px 50px rgba(138, 43, 226, 0.3);
+        }
+        
+        .organ-card.revealed {
+            border-color: #00ff88;
+            background: linear-gradient(135deg, rgba(0, 255, 136, 0.15) 0%, rgba(30, 30, 60, 0.95) 100%);
+            box-shadow: 0 0 30px rgba(0, 255, 136, 0.4);
+        }
+        
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .card-icon {
+            font-size: 2.5rem;
+            filter: drop-shadow(0 0 8px currentColor);
+        }
+        
+        .card-title {
+            color: #fff;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin: 0;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+        }
+        
+        .card-content {
+            color: #b8b8d8;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            max-height: 0;
+            opacity: 0;
+            overflow: hidden;
+            transition: all 0.5s ease;
+        }
+        
+        .organ-card.revealed .card-content {
+            max-height: 1000px;
+            opacity: 1;
+            margin-top: 1rem;
+        }
+        
+        .card-content ul {
+            list-style: none;
+            padding: 0;
+            margin: 0.5rem 0;
+        }
+        
+        .card-content li {
+            padding: 0.5rem 0;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+        
+        .card-content li::before {
+            content: '▸';
+            position: absolute;
+            left: 0;
+            color: #8a2be2;
+            font-weight: bold;
+        }
+        
+        .reveal-badge {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: linear-gradient(135deg, #8a2be2, #da70d6);
+            color: white;
+            padding: 0.4rem 1rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            opacity: 1;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(138, 43, 226, 0.4);
+        }
+        
+        .organ-card.revealed .reveal-badge {
+            background: linear-gradient(135deg, #00ff88, #00cc88);
+            box-shadow: 0 4px 15px rgba(0, 255, 136, 0.4);
+        }
+        
+        .stats-container {
+            display: flex;
+            gap: 2rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, rgba(138, 43, 226, 0.3) 0%, rgba(218, 112, 214, 0.3) 100%);
+            border: 2px solid rgba(138, 43, 226, 0.5);
+            border-radius: 15px;
+            padding: 1.5rem 2.5rem;
+            backdrop-filter: blur(10px);
+            text-align: center;
+            min-width: 180px;
+        }
+        
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: #fff;
+            text-shadow: 0 0 20px rgba(138, 43, 226, 0.8);
+            margin: 0;
+        }
+        
+        .stat-label {
+            color: #d8d8f0;
+            font-size: 0.95rem;
+            margin-top: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        button {
+            padding: 1rem 3rem;
+            font-size: 1.1rem;
+            background: linear-gradient(135deg, #8a2be2 0%, #da70d6 100%);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: 700;
+            box-shadow: 0 10px 30px rgba(138, 43, 226, 0.4);
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(138, 43, 226, 0.6);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        #success-message {
+            display: none;
+            margin-top: 2rem;
+            padding: 2rem 3rem;
+            background: linear-gradient(135deg, rgba(0, 255, 136, 0.3) 0%, rgba(0, 204, 136, 0.3) 100%);
+            border: 2px solid #00ff88;
+            color: white;
+            border-radius: 20px;
+            font-size: 1.5rem;
+            font-weight: 700;
+            box-shadow: 0 10px 40px rgba(0, 255, 136, 0.4);
+            animation: successSlide 0.5s ease;
+            backdrop-filter: blur(10px);
+            text-align: center;
+        }
+        
+        @keyframes successSlide {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            .system-card {
+                width: 100%;
+                max-width: 280px;
+            }
+            
+            .cards-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .stat-card {
+                min-width: 140px;
+                padding: 1rem 1.5rem;
+            }
+            
+            .stat-number {
+                font-size: 2rem;
+            }
+        }
+    </style>
+  <style>@view-transition { navigation: auto; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+  <script src="https://cdn.tailwindcss.com" type="text/javascript"></script>
+ </head>
+ <body>
+  <div class="app-wrapper">
+   <div class="stars" id="stars"></div>
+   <h1 id="game-title">🧬 EXPLORADOR DO SISTEMA GENITAL</h1>
+   <p class="subtitle" id="subtitle">Escolha um sistema e clique nos cards para revelar suas características</p>
+   <div class="system-selector">
+    <div class="system-card" data-system="masculino" onclick="selectSystem('masculino')">
+     <div class="icon">
+      🔵
+     </div>
+     <h2>Sistema Masculino</h2>
+    </div>
+    <div class="system-card" data-system="feminino" onclick="selectSystem('feminino')">
+     <div class="icon">
+      🔴
+     </div>
+     <h2>Sistema Feminino</h2>
+    </div>
+   </div>
+   <div class="stats-container">
+    <div class="stat-card">
+     <div class="stat-number" id="revealed-count">
+      0
+     </div>
+     <div class="stat-label">
+      Cards Revelados
+     </div>
+    </div>
+    <div class="stat-card">
+     <div class="stat-number" id="total-count">
+      0
+     </div>
+     <div class="stat-label">
+      Total de Cards
+     </div>
+    </div>
+   </div>
+   <div class="cards-container" id="cards-container"></div>
+   <div id="success-message"></div><button onclick="resetGame()">🔄 Reiniciar Exploração</button>
+  </div>
+  <script>
+        const defaultConfig = {
+            game_title: "🧬 EXPLORADOR DO SISTEMA GENITAL",
+            subtitle: "Escolha um sistema e clique nos cards para revelar suas características",
+            success_message: "🎉 Incrível! Você explorou todos os órgãos!",
+            primary_color: "#8a2be2",
+            secondary_color: "#da70d6",
+            success_color: "#00ff88",
+            background_color: "#0f0c29",
+            text_color: "#ffffff"
+        };
+
+        let config = { ...defaultConfig };
+        let currentSystem = null;
+        let revealedCards = new Set();
+
+        const organsData = {
+            masculino: [
+                {
+                    id: 'testiculos',
+                    icon: '🔬',
+                    title: 'Testículos',
+                    content: `<ul>
+                        <li>Localização: bolsa escrotal</li>
+                        <li>Temperatura: 2-3°C abaixo do corpo</li>
+                        <li>Formato oval (4-5 cm cada)</li>
+                        <li>Espermatogênese (produção espermatozoides)</li>
+                        <li>Células de Leydig (produção testosterona)</li>
+                        <li>Túbulos seminíferos</li>
+                    </ul>`
+                },
+                {
+                    id: 'epidimo',
+                    icon: '🧪',
+                    title: 'Epidídimo',
+                    content: `<ul>
+                        <li>Estrutura tubular enovelada</li>
+                        <li>Localizado sobre os testículos</li>
+                        <li>Comprimento: ~6 metros</li>
+                        <li>Maturação de espermatozoides (10-14 dias)</li>
+                        <li>Armazenamento temporário</li>
+                        <li>Desenvolvimento da motilidade</li>
+                    </ul>`
+                },
+                {
+                    id: 'ducto',
+                    icon: '🔗',
+                    title: 'Ducto Deferente',
+                    content: `<ul>
+                        <li>Tubo muscular de 30-35 cm</li>
+                        <li>Parede espessa e resistente</li>
+                        <li>Condução de espermatozoides</li>
+                        <li>Movimentos peristálticos</li>
+                        <li>Conecta epidídimo à uretra</li>
+                    </ul>`
+                },
+                {
+                    id: 'vesiculas',
+                    icon: '💧',
+                    title: 'Vesículas Seminais',
+                    content: `<ul>
+                        <li>Glândulas pares (2 unidades)</li>
+                        <li>Produzem 60-70% do volume seminal</li>
+                        <li>Líquido rico em frutose</li>
+                        <li>Nutrição e energia dos espermatozoides</li>
+                        <li>Prostaglandinas (motilidade)</li>
+                    </ul>`
+                },
+                {
+                    id: 'prostata',
+                    icon: '⚙️',
+                    title: 'Próstata',
+                    content: `<ul>
+                        <li>Glândula em forma de noz</li>
+                        <li>Localização: abaixo da bexiga</li>
+                        <li>Tamanho: ~3-4 cm diâmetro</li>
+                        <li>Produz 20-30% do volume seminal</li>
+                        <li>Líquido prostático alcalino</li>
+                        <li>Neutraliza acidez vaginal</li>
+                    </ul>`
+                },
+                {
+                    id: 'bulbo',
+                    icon: '💦',
+                    title: 'Glândulas Bulbouretrais',
+                    content: `<ul>
+                        <li>Glândulas de Cowper</li>
+                        <li>Tamanho de uma ervilha</li>
+                        <li>Líquido pré-ejaculatório</li>
+                        <li>Lubrificação da uretra</li>
+                        <li>Neutralização acidez uretral</li>
+                    </ul>`
+                },
+                {
+                    id: 'uretra',
+                    icon: '🚰',
+                    title: 'Uretra',
+                    content: `<ul>
+                        <li>Canal de 18-20 cm</li>
+                        <li>Passagem de urina e sêmen</li>
+                        <li>3 regiões: prostática, membranosa, esponjosa</li>
+                        <li>Esfíncter uretral (controle)</li>
+                    </ul>`
+                },
+                {
+                    id: 'penis',
+                    icon: '🎯',
+                    title: 'Pênis',
+                    content: `<ul>
+                        <li>Órgão copulador externo</li>
+                        <li>Corpos cavernosos (2 estruturas)</li>
+                        <li>Corpo esponjoso (1 estrutura)</li>
+                        <li>Ereção por ingurgitamento sanguíneo</li>
+                        <li>Glande (extremidade sensível)</li>
+                    </ul>`
+                },
+                {
+                    id: 'testosterona',
+                    icon: '💪',
+                    title: 'Testosterona',
+                    content: `<ul>
+                        <li>Hormônio androgênico principal</li>
+                        <li>Características sexuais secundárias</li>
+                        <li>Crescimento de pelos</li>
+                        <li>Desenvolvimento muscular</li>
+                        <li>Engrossamento da voz</li>
+                        <li>Espermatogênese e libido</li>
+                    </ul>`
+                }
+            ],
+            feminino: [
+                {
+                    id: 'ovarios',
+                    icon: '🥚',
+                    title: 'Ovários',
+                    content: `<ul>
+                        <li>Glândulas pares (formato amêndoa)</li>
+                        <li>Tamanho: 3-5 cm cada</li>
+                        <li>Oogênese (produção óvulos)</li>
+                        <li>Folículos ovarianos</li>
+                        <li>Corpo lúteo (após ovulação)</li>
+                        <li>Produção estrogênio/progesterona</li>
+                    </ul>`
+                },
+                {
+                    id: 'tubas',
+                    icon: '🎺',
+                    title: 'Tubas Uterinas',
+                    content: `<ul>
+                        <li>Trompas de Falópio</li>
+                        <li>Tubos musculares (~10-12 cm)</li>
+                        <li>Fímbrias (extremidades franjadas)</li>
+                        <li>Local da fertilização</li>
+                        <li>Transporte do óvulo (cílios)</li>
+                        <li>Movimentos peristálticos</li>
+                    </ul>`
+                },
+                {
+                    id: 'utero',
+                    icon: '🏠',
+                    title: 'Útero',
+                    content: `<ul>
+                        <li>Órgão muscular oco (formato pera)</li>
+                        <li>Tamanho: 7-8 cm comprimento</li>
+                        <li>Endométrio (camada interna)</li>
+                        <li>Miométrio (camada muscular)</li>
+                        <li>Gestação (desenvolvimento fetal)</li>
+                        <li>Menstruação (descamação)</li>
+                    </ul>`
+                },
+                {
+                    id: 'vagina',
+                    icon: '🌸',
+                    title: 'Vagina',
+                    content: `<ul>
+                        <li>Canal muscular elástico (8-10 cm)</li>
+                        <li>Conecta útero ao exterior</li>
+                        <li>Canal do parto</li>
+                        <li>Órgão copulador</li>
+                        <li>pH ácido (proteção)</li>
+                        <li>Lubrificação natural</li>
+                    </ul>`
+                },
+                {
+                    id: 'vulva',
+                    icon: '🌺',
+                    title: 'Vulva',
+                    content: `<ul>
+                        <li>Genitália externa feminina</li>
+                        <li>Monte púbico</li>
+                        <li>Grandes lábios (proteção externa)</li>
+                        <li>Pequenos lábios (proteção interna)</li>
+                        <li>Clitóris (órgão erétil sensorial)</li>
+                        <li>Glândulas de Bartholin</li>
+                    </ul>`
+                },
+                {
+                    id: 'estrogênio',
+                    icon: '💖',
+                    title: 'Estrogênio',
+                    content: `<ul>
+                        <li>Produzido pelos ovários</li>
+                        <li>Desenvolvimento sexual feminino</li>
+                        <li>Características sexuais secundárias</li>
+                        <li>Desenvolvimento das mamas</li>
+                        <li>Alargamento dos quadris</li>
+                        <li>Regulação ciclo menstrual</li>
+                    </ul>`
+                },
+                {
+                    id: 'progesterona',
+                    icon: '🤰',
+                    title: 'Progesterona',
+                    content: `<ul>
+                        <li>Produzida pelo corpo lúteo</li>
+                        <li>Preparação uterina (implantação)</li>
+                        <li>Manutenção da gravidez</li>
+                        <li>Espessamento endométrio</li>
+                        <li>Secreção endometrial</li>
+                        <li>Desenvolvimento glândulas mamárias</li>
+                    </ul>`
+                },
+                {
+                    id: 'ciclo',
+                    icon: '🔄',
+                    title: 'Ciclo Menstrual',
+                    content: `<ul>
+                        <li>Duração média: 28 dias</li>
+                        <li>Fase folicular (dias 1-14)</li>
+                        <li>Ovulação (dia ~14)</li>
+                        <li>Fase lútea (dias 15-28)</li>
+                        <li>Menstruação (dias 1-5)</li>
+                        <li>Regulado por hormônios</li>
+                    </ul>`
+                }
+            ]
+        };
+
+        // Criar estrelas
+        function createStars() {
+            const starsContainer = document.getElementById('stars');
+            for (let i = 0; i < 100; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.animationDelay = Math.random() * 3 + 's';
+                starsContainer.appendChild(star);
+            }
+        }
+
+        function selectSystem(system) {
+            currentSystem = system;
+            revealedCards.clear();
+            
+            // Atualizar visual dos cards de seleção
+            document.querySelectorAll('.system-card').forEach(card => {
+                card.classList.remove('active');
+            });
+            document.querySelector(`[data-system="${system}"]`).classList.add('active');
+            
+            // Renderizar cards
+            renderCards();
+            updateStats();
+        }
+
+        function renderCards() {
+            const container = document.getElementById('cards-container');
+            container.innerHTML = '';
+            
+            if (!currentSystem) {
+                return;
+            }
+            
+            const organs = organsData[currentSystem];
+            
+            organs.forEach(organ => {
+                const card = document.createElement('div');
+                card.className = 'organ-card';
+                card.onclick = () => revealCard(organ.id);
+                
+                card.innerHTML = `
+                    <div class="reveal-badge">${revealedCards.has(organ.id) ? '✓ Revelado' : '🔒 Clique'}</div>
+                    <div class="card-header">
+                        <div class="card-icon">${organ.icon}</div>
+                        <h3 class="card-title">${organ.title}</h3>
+                    </div>
+                    <div class="card-content">${organ.content}</div>
+                `;
+                
+                if (revealedCards.has(organ.id)) {
+                    card.classList.add('revealed');
+                }
+                
+                container.appendChild(card);
+            });
+        }
+
+        function revealCard(cardId) {
+            if (!revealedCards.has(cardId)) {
+                revealedCards.add(cardId);
+                renderCards();
+                updateStats();
+                checkCompletion();
+            }
+        }
+
+        function updateStats() {
+            const totalCards = currentSystem ? organsData[currentSystem].length : 0;
+            document.getElementById('revealed-count').textContent = revealedCards.size;
+            document.getElementById('total-count').textContent = totalCards;
+        }
+
+        function checkCompletion() {
+            if (currentSystem && revealedCards.size === organsData[currentSystem].length) {
+                const successMsg = document.getElementById('success-message');
+                successMsg.textContent = config.success_message || defaultConfig.success_message;
+                successMsg.style.display = 'block';
+            }
+        }
+
+        function resetGame() {
+            currentSystem = null;
+            revealedCards.clear();
+            document.querySelectorAll('.system-card').forEach(card => {
+                card.classList.remove('active');
+            });
+            document.getElementById('cards-container').innerHTML = '';
+            document.getElementById('success-message').style.display = 'none';
+            updateStats();
+        }
+
+        // Inicializar SDK
+        if (window.elementSdk) {
+            window.elementSdk.init({
+                defaultConfig: defaultConfig,
+                onConfigChange: async (newConfig) => {
+                    config = { ...defaultConfig, ...newConfig };
+                    updateUIFromConfig();
+                },
+                mapToCapabilities: (cfg) => ({
+                    recolorables: [
+                        {
+                            get: () => cfg.primary_color || defaultConfig.primary_color,
+                            set: (value) => {
+                                cfg.primary_color = value;
+                                window.elementSdk.setConfig({ primary_color: value });
+                            }
+                        },
+                        {
+                            get: () => cfg.success_color || defaultConfig.success_color,
+                            set: (value) => {
+                                cfg.success_color = value;
+                                window.elementSdk.setConfig({ success_color: value });
+                            }
+                        },
+                        {
+                            get: () => cfg.background_color || defaultConfig.background_color,
+                            set: (value) => {
+                                cfg.background_color = value;
+                                window.elementSdk.setConfig({ background_color: value });
+                            }
+                        },
+                        {
+                            get: () => cfg.text_color || defaultConfig.text_color,
+                            set: (value) => {
+                                cfg.text_color = value;
+                                window.elementSdk.setConfig({ text_color: value });
+                            }
+                        }
+                    ],
+                    borderables: [],
+                    fontEditable: undefined,
+                    fontSizeable: undefined
+                }),
+                mapToEditPanelValues: (cfg) => new Map([
+                    ["game_title", cfg.game_title || defaultConfig.game_title],
+                    ["subtitle", cfg.subtitle || defaultConfig.subtitle],
+                    ["success_message", cfg.success_message || defaultConfig.success_message]
+                ])
+            });
+        }
+
+        function updateUIFromConfig() {
+            document.getElementById('game-title').innerHTML = config.game_title || defaultConfig.game_title;
+            document.getElementById('subtitle').textContent = config.subtitle || defaultConfig.subtitle;
+        }
+
+        // Inicializar
+        createStars();
+        updateStats();
+    </script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Explorador do Sistema Genital!</title>
+  <script src="/_sdk/element_sdk.js"></script>
+  <style>
+        body {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        html {
+            height: 100%;
+            width: 100%;
+        }
+        
+        .app-wrapper {
+            width: 100%;
+            min-height: 100%;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            padding: 2rem 1rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            overflow-x: hidden;
+        }
+        
+        .bubble {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.6;
+            animation: float-up linear infinite;
+            pointer-events: none;
+        }
+        
+        @keyframes float-up {
+            0% {
+                transform: translateY(100%) scale(0);
+                opacity: 0;
+            }
+            10% {
+                opacity: 0.6;
+            }
+            90% {
+                opacity: 0.6;
+            }
+            100% {
+                transform: translateY(-1000px) scale(1);
+                opacity: 0;
+            }
+        }
+        
+        .bubble:nth-child(1) { left: 10%; width: 80px; height: 80px; background: rgba(255, 182, 193, 0.6); animation-duration: 15s; animation-delay: 0s; }
+        .bubble:nth-child(2) { left: 20%; width: 60px; height: 60px; background: rgba(173, 216, 230, 0.6); animation-duration: 12s; animation-delay: 2s; }
+        .bubble:nth-child(3) { left: 35%; width: 100px; height: 100px; background: rgba(255, 255, 153, 0.6); animation-duration: 18s; animation-delay: 4s; }
+        .bubble:nth-child(4) { left: 50%; width: 70px; height: 70px; background: rgba(152, 251, 152, 0.6); animation-duration: 14s; animation-delay: 1s; }
+        .bubble:nth-child(5) { left: 65%; width: 90px; height: 90px; background: rgba(221, 160, 221, 0.6); animation-duration: 16s; animation-delay: 3s; }
+        .bubble:nth-child(6) { left: 75%; width: 65px; height: 65px; background: rgba(255, 218, 185, 0.6); animation-duration: 13s; animation-delay: 5s; }
+        .bubble:nth-child(7) { left: 85%; width: 85px; height: 85px; background: rgba(176, 224, 230, 0.6); animation-duration: 17s; animation-delay: 2.5s; }
+        .bubble:nth-child(8) { left: 15%; width: 75px; height: 75px; background: rgba(255, 192, 203, 0.6); animation-duration: 15.5s; animation-delay: 4.5s; }
+        
+        h1 {
+            color: #ffffff;
+            text-align: center;
+            margin: 0 0 1rem 0;
+            font-size: 2rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .instructions {
+            color: #ffffff;
+            text-align: center;
+            margin-bottom: 1.5rem;
+            font-size: 1.1rem;
+            opacity: 0.95;
+        }
+        
+        #game-container {
+            display: flex;
+            flex-direction: row;
+            width: 100%;
+            max-width: 1400px;
+            gap: 1.5rem;
+            background-color: #ffffff;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+        
+        #draggable-words {
+            flex: 0 0 300px;
+            padding: 1.5rem;
+            border: 4px solid #ffd700;
+            border-radius: 16px;
+            background: linear-gradient(135deg, #ffebcd 0%, #ffd700 100%);
+            max-height: 800px;
+            overflow-y: auto;
+            box-shadow: 0 8px 24px rgba(255, 215, 0, 0.4);
+        }
+        
+        #draggable-words h2 {
+            color: #8b4513;
+            font-size: 1.4rem;
+            margin: 0 0 1rem 0;
+            text-align: center;
+            border-bottom: 3px solid #ff6b6b;
+            padding-bottom: 0.5rem;
+            text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.5);
+        }
+        
+        .draggable {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ff8e53 100%);
+            color: white;
+            padding: 0.7rem 1rem;
+            margin: 0.5rem 0;
+            border-radius: 12px;
+            cursor: grab;
+            text-align: center;
+            font-size: 1rem;
+            font-weight: 600;
+            box-shadow: 0 6px 12px rgba(255, 107, 107, 0.4);
+            transition: all 0.3s ease;
+            user-select: none;
+            border: 3px solid #ff8e53;
+        }
+        
+        .draggable:hover {
+            transform: translateY(-4px) scale(1.05);
+            box-shadow: 0 8px 20px rgba(255, 107, 107, 0.6);
+        }
+        
+        .draggable:active {
+            cursor: grabbing;
+            transform: scale(0.95);
+        }
+        
+        .draggable.correct {
+            background: linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%);
+            cursor: default;
+            opacity: 0.7;
+            border-color: #44a08d;
+        }
+        
+        .draggable.correct:hover {
+            transform: none;
+        }
+        
+        #mind-map-targets {
+            flex: 1;
+            padding: 2rem;
+            border: 4px solid #ff6b6b;
+            border-radius: 16px;
+            background: linear-gradient(135deg, #e0f7fa 0%, #b2ebf2 100%);
+            position: relative;
+            min-height: 1000px;
+            overflow-y: auto;
+            box-shadow: 0 8px 24px rgba(255, 107, 107, 0.4);
+        }
+        
+        .details-container {
+            display: flex;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 2rem;
+        }
+        
+        .target-group {
+            flex: 1;
+            min-width: 400px;
+            padding: 1.5rem;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 12px;
+            border: 2px solid rgba(255, 255, 255, 0.5);
+        }
+        
+        .target-group h3 {
+            color: #333;
+            font-size: 1.3rem;
+            margin: 0 0 1rem 0;
+            text-align: center;
+            padding: 0.5rem;
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 8px;
+            text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8);
+        }
+        
+        .target-group .target {
+            background: linear-gradient(135deg, #9c27b0 0%, #e91e63 100%);
+            color: white;
+            padding: 0.8rem 1rem;
+            margin: 0.5rem 0;
+            border-radius: 10px;
+            border: 3px dashed rgba(255, 255, 255, 0.9);
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-align: left;
+            transition: all 0.3s ease;
+        }
+        
+        .target-group .sub-target {
+            margin-left: 1.5rem;
+            background: linear-gradient(135deg, #4caf50 0%, #66bb6a 100%);
+            font-size: 0.85rem;
+        }
+        
+        .target-group .sub-sub-target {
+            margin-left: 3rem;
+            background: linear-gradient(135deg, #2196f3 0%, #03a9f4 100%);
+            border-style: solid;
+            border-color: white;
+            opacity: 0.9;
+            font-size: 0.8rem;
+            cursor: default;
+        }
+        
+        .flowchart-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3rem;
+            padding: 2rem 0;
+        }
+        
+        .flowchart-level {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.5rem;
+            width: 100%;
+        }
+        
+        .flowchart-row {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+            width: 100%;
+        }
+        
+        .flow-node {
+            min-width: 160px;
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.95rem;
+            font-weight: 700;
+            text-align: center;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+        
+        .flow-node:hover {
+            transform: scale(1.05);
+        }
+        
+        .root-node {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ff8e53 100%);
+            border: 5px solid #ffd700;
+            color: white;
+            font-size: 1.4rem;
+            font-weight: 800;
+            min-width: 250px;
+            padding: 1.5rem 2rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        .level1-node {
+            background: linear-gradient(135deg, #9c27b0 0%, #e91e63 100%);
+            border: 4px solid #ffd700;
+            color: white;
+            min-width: 180px;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+        }
+        
+        .level2-node {
+            background: linear-gradient(135deg, #4caf50 0%, #66bb6a 100%);
+            border: 3px solid #ffd700;
+            color: white;
+            min-width: 140px;
+            font-size: 0.85rem;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+        }
+        
+        .target {
+            border: 3px dashed rgba(255, 255, 255, 0.9);
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(5px);
+        }
+        
+        .target.filled {
+            border-style: solid;
+            border-color: white;
+            background: rgba(255, 255, 255, 0.4);
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.7);
+        }
+        
+        .target.drag-over {
+            background: rgba(255, 255, 255, 0.5);
+            border-color: white;
+            border-style: solid;
+            transform: scale(1.1);
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.8);
+        }
+        
+        .target .dropped-word {
+            color: white;
+            font-weight: 700;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.4);
+            font-size: 0.85rem;
+        }
+        
+        #score-container {
+            margin-top: 1.5rem;
+            padding: 1.2rem 2.5rem;
+            background: linear-gradient(135deg, #ffeb3b 0%, #ffc107 100%);
+            border-radius: 16px;
+            box-shadow: 0 6px 20px rgba(255, 193, 7, 0.5);
+            text-align: center;
+            border: 4px solid #ff9800;
+        }
+        
+        #score-text {
+            font-size: 1.5rem;
+            color: #bf360c;
+            font-weight: 700;
+            text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.5);
+        }
+        
+        #success-message {
+            display: none;
+            margin-top: 1rem;
+            padding: 1.5rem 2.5rem;
+            background: linear-gradient(135deg, #4caf50 0%, #8bc34a 100%);
+            color: white;
+            border-radius: 16px;
+            font-size: 1.4rem;
+            font-weight: 700;
+            box-shadow: 0 6px 24px rgba(76, 175, 80, 0.6);
+            animation: slideIn 0.5s ease, pulse 2s infinite;
+            border: 4px solid #388e3c;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+        }
+        
+        button {
+            padding: 1rem 2.5rem;
+            font-size: 1.2rem;
+            background: linear-gradient(135deg, #ff5722 0%, #f44336 100%);
+            color: white;
+            border: 4px solid #d32f2f;
+            border-radius: 16px;
+            cursor: pointer;
+            margin-top: 1rem;
+            font-weight: 700;
+            box-shadow: 0 6px 20px rgba(244, 67, 54, 0.5);
+            transition: all 0.3s ease;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+        }
+        
+        button:hover {
+            transform: translateY(-4px) scale(1.05);
+            box-shadow: 0 8px 28px rgba(244, 67, 54, 0.7);
+        }
+        
+        button:active {
+            transform: translateY(0) scale(0.95);
+        }
+        
+        @media (max-width: 768px) {
+            #game-container {
+                flex-direction: column;
+            }
+            
+            #draggable-words {
+                flex: 1;
+                max-height: none;
+                flex-basis: auto;
+            }
+            
+            #mind-map-targets {
+                min-height: 1200px;
+                max-height: none;
+            }
+            
+            .target-group {
+                min-width: 100%;
+            }
+            
+            h1 {
+                font-size: 1.6rem;
+            }
+            
+            .instructions {
+                font-size: 1rem;
+            }
+            
+            .draggable {
+                font-size: 0.95rem;
+                padding: 0.6rem 0.9rem;
+            }
+            
+            button {
+                padding: 0.9rem 2rem;
+                font-size: 1.1rem;
+            }
+            
+            #score-text {
+                font-size: 1.3rem;
+            }
+            
+            .bubble {
+                display: none;
+            }
+        }
+    </style>
+  <div class="app-wrapper">
+   <div class="bubble"></div>
+   <div class="bubble"></div>
+   <div class="bubble"></div>
+   <div class="bubble"></div>
+   <div class="bubble"></div>
+   <div class="bubble"></div>
+   <div class="bubble"></div>
+   <div class="bubble"></div>
+   <h1 id="game-title">Monte o Mapa Mental do Sistema Genital!</h1>
+   <p class="instructions" id="instructions">Arraste as palavras da esquerda para os lugares corretos no mapa mental hierárquico.</p>
+   <div id="game-container">
+    <div id="draggable-words">
+     <h2>Palavras</h2>
+     <div class="draggable" draggable="true" data-word="Sistema Genital Masculino">
+      Sistema Genital Masculino
+     </div>
+     <div class="draggable" draggable="true" data-word="Sistema Genital Feminino">
+      Sistema Genital Feminino
+     </div>
+     <div class="draggable" draggable="true" data-word="Função Principal">
+      Função Principal
+     </div>
+     <div class="draggable" draggable="true" data-word="Órgãos Principais">
+      Órgãos Principais
+     </div>
+     <div class="draggable" draggable="true" data-word="Hormônios">
+      Hormônios
+     </div>
+     <div class="draggable" draggable="true" data-word="Testículos">
+      Testículos
+     </div>
+     <div class="draggable" draggable="true" data-word="Epidídimo">
+      Epidídimo
+     </div>
+     <div class="draggable" draggable="true" data-word="Ducto Deferente">
+      Ducto Deferente
+     </div>
+     <div class="draggable" draggable="true" data-word="Vesículas Seminais">
+      Vesículas Seminais
+     </div>
+     <div class="draggable" draggable="true" data-word="Próstata">
+      Próstata
+     </div>
+     <div class="draggable" draggable="true" data-word="Glândulas Bulbouretrais">
+      Glândulas Bulbouretrais
+     </div>
+     <div class="draggable" draggable="true" data-word="Uretra">
+      Uretra
+     </div>
+     <div class="draggable" draggable="true" data-word="Pênis">
+      Pênis
+     </div>
+     <div class="draggable" draggable="true" data-word="Testosterona">
+      Testosterona
+     </div>
+     <div class="draggable" draggable="true" data-word="Ovários">
+      Ovários
+     </div>
+     <div class="draggable" draggable="true" data-word="Tubas Uterinas">
+      Tubas Uterinas
+     </div>
+     <div class="draggable" draggable="true" data-word="Útero">
+      Útero
+     </div>
+     <div class="draggable" draggable="true" data-word="Vagina">
+      Vagina
+     </div>
+     <div class="draggable" draggable="true" data-word="Vulva">
+      Vulva
+     </div>
+     <div class="draggable" draggable="true" data-word="Estrogênio">
+      Estrogênio
+     </div>
+     <div class="draggable" draggable="true" data-word="Progesterona">
+      Progesterona
+     </div>
+     <div class="draggable" draggable="true" data-word="Ciclo Menstrual">
+      Ciclo Menstrual
+     </div>
+    </div>
+    <div id="mind-map-targets">
+     <div class="flowchart-container"><!-- NÍVEL 0: NÓ RAIZ -->
+      <div class="flowchart-level">
+       <div class="flow-node root-node">
+        SISTEMA GENITAL
+       </div>
+      </div><!-- NÍVEL 1: MASCULINO E FEMININO -->
+      <div class="flowchart-level">
+       <div class="flowchart-row">
+        <div class="flow-node level1-node target" data-accept="Sistema Genital Masculino">
+         Arrastar Aqui
+        </div>
+        <div class="flow-node level1-node target" data-accept="Sistema Genital Feminino">
+         Arrastar Aqui
+        </div>
+       </div>
+      </div>
+     </div>
+     <div class="details-container">
+      <div class="target-group">
+       <h3>🔵 MASCULINO - DETALHES</h3>
+       <div class="target" data-accept="Função Principal">
+        (Arrastar aqui)
+       </div>
+       <div class="target sub-sub-target">
+        → → Produção de espermatozoides
+       </div>
+       <div class="target sub-sub-target">
+        → → Produção de hormônios sexuais
+       </div>
+       <div class="target sub-sub-target">
+        → → Fecundação do óvulo
+       </div>
+       <div class="target sub-sub-target">
+        → → Deposição de sêmen
+       </div>
+       <div class="target" data-accept="Órgãos Principais">
+        (Arrastar aqui)
+       </div>
+       <div class="target sub-target" data-accept="Testículos">
+        → (Arrastar aqui)
+       </div>
+       <div class="target sub-sub-target">
+        → → Localização: bolsa escrotal
+       </div>
+       <div class="target sub-sub-target">
+        → → Temperatura: 2-3°C abaixo corporal
+       </div>
+       <div class="target sub-sub-target">
+        → → Formato oval (4-5 cm cada)
+       </div>
+       <div class="target sub-sub-target">
+        → → Espermatogênese (produção esperm.)
+       </div>
+       <div class="target sub-sub-target">
+        → → Células de Leydig (prod. testosterona)
+       </div>
+       <div class="target sub-sub-target">
+        → → Túbulos seminíferos (local produção)
+       </div>
+       <div class="target sub-sub-target">
+        → → Células de Sertoli (nutrição)
+       </div>
+       <div class="target sub-target" data-accept="Epidídimo">
+        → (Arrastar aqui)
+       </div>
+       <div class="target sub-sub-target">
+        → → Estrutura tubular enovelada
+       </div>
+       <div class="target sub-sub-target">
+        → → Localização: sobre os testículos
+       </div>
+       <div class="target sub-sub-target">
+        → → Comprimento: ~6 metros
+       </div>
+       <div class="target sub-sub-target">
+        → → Maturação espermatozoides (10-14 dias)
+       </div>
+       <div class="target sub-sub-target">
+        → → Armazenamento temporário
+       </div>
+       <div class="target sub-sub-target">
+        → → Desenvolvimento da motilidade
+       </div>
+       <div class="target sub-target" data-accept="Ducto Deferente">
+        → (Arrastar aqui)
+       </div>
+       <div class="target sub-sub-target">
+        → → Tubo muscular de 30-35 cm
+       </div>
+       <div class="target sub-sub-target">
+        → → Parede espessa e resistente
+       </div>
+       <div class="target sub-sub-target">
+        → → Condução de espermatozoides
+       </div>
+       <div class="target sub-sub-target">
+        → → Movimentos peristálticos
+       </div>
+       <div class="target sub-sub-target">
+        → → Conecta epidídimo à uretra
+       </div>
+       <div class="target sub-sub-target">
+        → → Vasectomia (corte/bloqueio)
+       </div>
+       <div class="target sub-target" data-accept="Vesículas Seminais">
+        → (Arrastar aqui)
+       </div>
+       <div class="target sub-sub-target">
+        → → Glândulas pares (2 unidades)
+       </div>
+       <div class="target sub-sub-target">
+        → → Localização: atrás da bexiga
+       </div>
+       <div class="target sub-sub-target">
+        → → Produzem 60-70% do volume seminal
+       </div>
+       <div class="target sub-sub-target">
+        → → Líquido seminal rico em frutose
+       </div>
+       <div class="target sub-sub-target">
+        → → Nutrição e energia espermatozoides
+       </div>
+       <div class="target sub-sub-target">
+        → → Prostaglandinas (motilidade)
+       </div>
+       <div class="target sub-sub-target">
+        → → Aspecto viscoso e amarelado
+       </div>
+       <div class="target sub-target" data-accept="Próstata">
+        → (Arrastar aqui)
+       </div>
+       <div class="target sub-sub-target">
+        → → Glândula em forma de noz
+       </div>
+       <div class="target sub-sub-target">
+        → → Localização: abaixo da bexiga
+       </div>
+       <div class="target sub-sub-target">
+        → → Tamanho: ~3-4 cm diâmetro
+       </div>
+       <div class="target sub-sub-target">
+        → → Produz 20-30% do volume seminal
+       </div>
+       <div class="target sub-sub-target">
+        → → Líquido prostático alcalino
+       </div>
+       <div class="target sub-sub-target">
+        → → Enzimas (PSA, fosfatase ácida)
+       </div>
+       <div class="target sub-sub-target">
+        → → Neutraliza acidez vaginal
+       </div>
+       <div class="target sub-sub-target">
+        → → Ativação e proteção do sêmen
+       </div>
+       <div class="target sub-target" data-accept="Glândulas Bulbouretrais">
+        → (Arrastar aqui)
+       </div>
+       <div class="target sub-sub-target">
+        → → Também chamadas Glândulas de Cowper
+       </div>
+       <div class="target sub-sub-target">
+        → → Glândulas pares pequenas (tamanho ervilha)
+       </div>
+       <div class="target sub-sub-target">
+        → → Localização: base do pênis
+       </div>
+       <div class="target sub-sub-target">
+        → → Líquido pré-ejaculatório
+       </div>
+       <div class="target sub-sub-target">
+        → → Lubrificação da uretra
+       </div>
+       <div class="target sub-sub-target">
+        → → Neutralização acidez uretral
+       </div>
+       <div class="target sub-target" data-accept="Uretra">
+        → (Arrastar aqui)
+       </div>
+       <div class="target sub-sub-target">
+        → → Canal de 18-20 cm comprimento
+       </div>
+       <div class="target sub-sub-target">
+        → → Passagem de urina e sêmen
+       </div>
+       <div class="target sub-sub-target">
+        → → 3 regiões: prostática, membranosa, esponjosa
+       </div>
+       <div class="target sub-sub-target">
+        → → Esfíncter uretral (controle)
+       </div>
+       <div class="target sub-sub-target">
+        → → Esfíncter externo (voluntário)
+       </div>
+       <div class="target sub-target" data-accept="Pênis">
+        → (Arrastar aqui)
+       </div>
+       <div class="target sub-sub-target">
+        → → Órgão copulador externo
+       </div>
+       <div class="target sub-sub-target">
+        → → Corpos cavernosos (2 estruturas)
+       </div>
+       <div class="target sub-sub-target">
+        → → Corpo esponjoso (1 estrutura)
+       </div>
+       <div class="target sub-sub-target">
+        → → Ereção por ingurgitamento sanguíneo
+       </div>
+       <div class="target sub-sub-target">
+        → → Glande (extremidade sensível)
+       </div>
+       <div class="target sub-sub-target">
+        → → Prepúcio (pele retrátil)
+       </div>
+       <div class="target sub-sub-target">
+        → → Frenulo (banda tecido)
+       </div>
+       <div class="target" data-accept="Hormônios">
+        (Arrastar aqui)
+       </div>
+       <div class="target sub-target" data-accept="Testosterona">
+        → (Arrastar aqui)
+       </div>
+       <div class="target sub-sub-target">
+        → → Hormônio androgênico principal
+       </div>
+       <div class="target sub-sub-target">
+        → → Produzido células de Leydig
+       </div>
+       <div class="target sub-sub-target">
+        → → Características sexuais secund����rias
+       </div>
+       <div class="target sub-sub-target">
+        → → Crescimento pelos faciais/corporais
+       </div>
+       <div class="target sub-sub-target">
+        → → Desenvolvimento muscular
+       </div>
+       <div class="target sub-sub-target">
+        → → Engrossamento da voz
+       </div>
+       <div class="target sub-sub-target">
+        → → Espermatogênese
+       </div>
+       <div class="target sub-sub-target">
+        → → Libido (desejo sexual)
+       </div>
+       <div class="target sub-sub-target">
+        → → Distribuição gordura corporal
+       </div>
+      </div>
+      <div class="target-group">
+       <h3>🔴 FEMININO - DETALHES</h3>
+       <div class="target" data-accept="Função Principal">
+        (Arrastar aqui)
+       </div>
+       <div class="target sub-sub-target">
+        → → Produção de óvulos (ovócitos)
+       </div>
+       <div class="target sub-sub-target">
+        → → Produção de hormônios sexuais
+       </div>
+       <div class="target sub-sub-target">
+        → → Recepção do espermatozoide
+       </div>
+       <div class="target sub-sub-target">
+        → → Gestação e desenvolvimento fetal
+       </div>
+       <div class="target sub-sub-target">
+        → → Parto
+       </div>
+       <div class="target" data-accept="Órgãos Principais">
+        (Arrastar aqui)
+       </div>
+       <div class="target sub-target" data-accept="Ovários">
+        → (Arrastar aqui)
+       </div>
+       <div class="target sub-sub-target">
+        → → Glândulas pares (formato amêndoa)
+       </div>
+       <div class="target sub-sub-target">
+        → → Localização: cavidade pélvica
+       </div>
+       <div class="target sub-sub-target">
+        → → Tamanho: 3-5 cm cada
+       </div>
+       <div class="target sub-sub-target">
+        → → Oogênese (produção óvulos)
+       </div>
+       <div class="target sub-sub-target">
+        → → Folículos ovarianos (matura��ão)
+       </div>
+       <div class="target sub-sub-target">
+        → → Corpo lúteo (após ovulação)
+       </div>
+       <div class="target sub-sub-target">
+        → → Produção estrogênio/progesterona
+       </div>
+       <div class="target sub-sub-target">
+        → → Reserva ovariana (óvulos vida toda)
+       </div>
+       <div class="target sub-target" data-accept="Tubas Uterinas">
+        → (Arrastar aqui)
+       </div>
+       <div class="target sub-sub-target">
+        → → Também chamadas trompas de Falópio
+       </div>
+       <div class="target sub-sub-target">
+        → → Tubos musculares pares (~10-12 cm)
+       </div>
+       <div class="target sub-sub-target">
+        → → Fímbrias (extremidades franjadas)
+       </div>
+       <div class="target sub-sub-target">
+        → → Fertilização (local encontro)
+       </div>
+       <div class="target sub-sub-target">
+        → → Transporte do óvulo (cílios)
+       </div>
+       <div class="target sub-sub-target">
+        → → Movimentos peristálticos
+       </div>
+       <div class="target sub-sub-target">
+        → → Captação do óvulo liberado
+       </div>
+       <div class="target sub-target" data-accept="Útero">
+        → (Arrastar aqui)
+       </div>
+       <div class="target sub-sub-target">
+        → → Órgão muscular oco (formato pera)
+       </div>
+       <div class="target sub-sub-target">
+        → → Tamanho: 7-8 cm comprimento
+       </div>
+       <div class="target sub-sub-target">
+        → → Localização: centro da pelve
+       </div>
+       <div class="target sub-sub-target">
+        → → Endométrio (camada interna)
+       </div>
+       <div class="target sub-sub-target">
+        → → Miométrio (camada muscular)
+       </div>
+       <div class="target sub-sub-target">
+        → → Perimétrio (camada externa)
+       </div>
+       <div class="target sub-sub-target">
+        → → Gestação (desenvolvimento fetal)
+       </div>
+       <div class="target sub-sub-target">
+        → → Menstruação (descamação endométrio)
+       </div>
+       <div class="target sub-sub-target">
+        → → Colo uterino (abertura vagina)
+       </div>
+       <div class="target sub-target" data-accept="Vagina">
+        → (Arrastar aqui)
+       </div>
+       <div class="target sub-sub-target">
+        → → Canal muscular elástico (8-10 cm)
+       </div>
+       <div class="target sub-sub-target">
+        → → Conecta útero ao exterior
+       </div>
+       <div class="target sub-sub-target">
+        → → Canal do parto
+       </div>
+       <div class="target sub-sub-target">
+        → → Órgão copulador (recepção pênis)
+       </div>
+       <div class="target sub-sub-target">
+        → → pH ácido (proteção)
+       </div>
+       <div class="target sub-sub-target">
+        → → Lubrificação natural
+       </div>
+       <div class="target sub-sub-target">
+        → → Parede muscular distensível
+       </div>
+       <div class="target sub-target" data-accept="Vulva">
+        → (Arrastar aqui)
+       </div>
+       <div class="target sub-sub-target">
+        → → Genitália externa feminina
+       </div>
+       <div class="target sub-sub-target">
+        → → Monte púbico (tecido adiposo)
+       </div>
+       <div class="target sub-sub-target">
+        → → Grandes lábios (proteção externa)
+       </div>
+       <div class="target sub-sub-target">
+        → → Pequenos lábios (proteção interna)
+       </div>
+       <div class="target sub-sub-target">
+        → → Clitóris (órgão erétil sensorial)
+       </div>
+       <div class="target sub-sub-target">
+        → → Vestíbulo vaginal
+       </div>
+       <div class="target sub-sub-target">
+        → → Glândulas de Bartholin (lubrificação)
+       </div>
+       <div class="target sub-sub-target">
+        → → Uretra (abertura separada)
+       </div>
+       <div class="target" data-accept="Hormônios">
+        (Arrastar aqui)
+       </div>
+       <div class="target sub-target" data-accept="Estrogênio">
+        → (Arrastar aqui)
+       </div>
+       <div class="target sub-sub-target">
+        → �� Produzido principalmente pelos ovários
+       </div>
+       <div class="target sub-sub-target">
+        → → Desenvolvimento sexual feminino
+       </div>
+       <div class="target sub-sub-target">
+        → → Características sexuais secundárias
+       </div>
+       <div class="target sub-sub-target">
+        → → Desenvolvimento mamas
+       </div>
+       <div class="target sub-sub-target">
+        → → Alargamento quadris
+       </div>
+       <div class="target sub-sub-target">
+        → → Distribuição gordura corporal
+       </div>
+       <div class="target sub-sub-target">
+        → → Regulação ciclo menstrual
+       </div>
+       <div class="target sub-sub-target">
+        → → Proliferação endométrio
+       </div>
+       <div class="target sub-target" data-accept="Progesterona">
+        → (Arrastar aqui)
+       </div>
+       <div class="target sub-sub-target">
+        → → Produzida pelo corpo lúteo
+       </div>
+       <div class="target sub-sub-target">
+        → �� Preparação uterina (implantação)
+       </div>
+       <div class="target sub-sub-target">
+        → → Manutenção da gravidez
+       </div>
+       <div class="target sub-sub-target">
+        → → Espessamento endométrio
+       </div>
+       <div class="target sub-sub-target">
+        → → Secreção endometrial
+       </div>
+       <div class="target sub-sub-target">
+        → → Desenvolvimento glândulas mamárias
+       </div>
+       <div class="target" data-accept="Ciclo Menstrual">
+        (Arrastar aqui)
+       </div>
+       <div class="target sub-sub-target">
+        → → Duração média: 28 dias (21-35 normal)
+       </div>
+       <div class="target sub-sub-target">
+        → → Fase folicular (dias 1-14)
+       </div>
+       <div class="target sub-sub-target">
+        → → → Maturação folículo ovariano
+       </div>
+       <div class="target sub-sub-target">
+        → → → Proliferação endométrio
+       </div>
+       <div class="target sub-sub-target">
+        → → → Dominância de estrogênio
+       </div>
+       <div class="target sub-sub-target">
+        → → Ovulação (dia ~14)
+       </div>
+       <div class="target sub-sub-target">
+        → → → Liberação do óvulo maduro
+       </div>
+       <div class="target sub-sub-target">
+        → → → Pico de LH (hormônio)
+       </div>
+       <div class="target sub-sub-target">
+        → → Fase lútea (dias 15-28)
+       </div>
+       <div class="target sub-sub-target">
+        → → → Formação corpo lúteo
+       </div>
+       <div class="target sub-sub-target">
+        → → → Secreção endometrial
+       </div>
+       <div class="target sub-sub-target">
+        → → → Dominância de progesterona
+       </div>
+       <div class="target sub-sub-target">
+        → → Menstruação (dias 1-5)
+       </div>
+       <div class="target sub-sub-target">
+        → → → Descamação do endométrio
+       </div>
+       <div class="target sub-sub-target">
+        → → → Sangramento vaginal
+       </div>
+       <div class="target sub-sub-target">
+        → → → Início novo ciclo
+       </div>
+      </div>
+     </div>
+    </div>
+   </div>
+   <div id="score-container">
+    <div id="score-text">
+     Acertos: <span id="score">0</span> / 22
+    </div>
+   </div>
+   <div id="success-message"></div><button onclick="resetGame()">Reiniciar Jogo</button>
+  </div>
+  <script>
+        const defaultConfig = {
+            game_title: "Monte o Mapa Mental do Sistema Genital!",
+            instructions: "Arraste as palavras da esquerda para os lugares corretos no mapa mental hierárquico.",
+            success_message: "🎉 Parabéns! Você completou o mapa mental hierárquico corretamente!",
+            primary_color: "#667eea",
+            secondary_color: "#764ba2",
+            success_color: "#28a745",
+            background_color: "#ffffff",
+            text_color: "#495057"
+        };
+
+        let config = { ...defaultConfig };
+        let score = 0;
+        let totalTargets = 22;
+
+        // Inicializar SDK
+        if (window.elementSdk) {
+            window.elementSdk.init({
+                defaultConfig: defaultConfig,
+                onConfigChange: async (newConfig) => {
+                    config = { ...defaultConfig, ...newConfig };
+                    updateUIFromConfig();
+                },
+                mapToCapabilities: (cfg) => ({
+                    recolorables: [
+                        {
+                            get: () => cfg.primary_color || defaultConfig.primary_color,
+                            set: (value) => {
+                                cfg.primary_color = value;
+                                window.elementSdk.setConfig({ primary_color: value });
+                            }
+                        },
+                        {
+                            get: () => cfg.success_color || defaultConfig.success_color,
+                            set: (value) => {
+                                cfg.success_color = value;
+                                window.elementSdk.setConfig({ success_color: value });
+                            }
+                        },
+                        {
+                            get: () => cfg.background_color || defaultConfig.background_color,
+                            set: (value) => {
+                                cfg.background_color = value;
+                                window.elementSdk.setConfig({ background_color: value });
+                            }
+                        },
+                        {
+                            get: () => cfg.text_color || defaultConfig.text_color,
+                            set: (value) => {
+                                cfg.text_color = value;
+                                window.elementSdk.setConfig({ text_color: value });
+                            }
+                        }
+                    ],
+                    borderables: [],
+                    fontEditable: undefined,
+                    fontSizeable: undefined
+                }),
+                mapToEditPanelValues: (cfg) => new Map([
+                    ["game_title", cfg.game_title || defaultConfig.game_title],
+                    ["instructions", cfg.instructions || defaultConfig.instructions],
+                    ["success_message", cfg.success_message || defaultConfig.success_message]
+                ])
+            });
+        }
+
+        function updateUIFromConfig() {
+            document.getElementById('game-title').textContent = config.game_title || defaultConfig.game_title;
+            document.getElementById('instructions').textContent = config.instructions || defaultConfig.instructions;
+            
+            const appWrapper = document.querySelector('.app-wrapper');
+            appWrapper.style.background = `linear-gradient(135deg, ${config.primary_color || defaultConfig.primary_color} 0%, ${config.secondary_color || defaultConfig.secondary_color} 100%)`;
+            
+            document.querySelectorAll('.draggable:not(.correct)').forEach(el => {
+                el.style.background = `linear-gradient(135deg, ${config.primary_color || defaultConfig.primary_color} 0%, ${config.secondary_color || defaultConfig.secondary_color} 100%)`;
+            });
+            
+            document.querySelectorAll('.draggable.correct').forEach(el => {
+                el.style.background = `linear-gradient(135deg, ${config.success_color || defaultConfig.success_color} 0%, #20c997 100%)`;
+            });
+            
+            document.querySelectorAll('button').forEach(el => {
+                el.style.background = `linear-gradient(135deg, ${config.primary_color || defaultConfig.primary_color} 0%, ${config.secondary_color || defaultConfig.secondary_color} 100%)`;
+            });
+            
+            const gameContainer = document.getElementById('game-container');
+            gameContainer.style.backgroundColor = config.background_color || defaultConfig.background_color;
+            
+            document.querySelectorAll('h2, #score-text').forEach(el => {
+                el.style.color = config.text_color || defaultConfig.text_color;
+            });
+        }
+
+        // Drag and Drop functionality
+        const draggables = document.querySelectorAll('.draggable');
+        const targets = document.querySelectorAll('.target');
+
+        draggables.forEach(draggable => {
+            draggable.addEventListener('dragstart', (e) => {
+                if (!draggable.classList.contains('correct')) {
+                    e.dataTransfer.setData('text/plain', draggable.dataset.word);
+                    e.dataTransfer.effectAllowed = 'move';
+                }
+            });
+        });
+
+        targets.forEach(target => {
+            target.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                if (!target.classList.contains('filled') && !target.classList.contains('sub-sub-target')) {
+                    target.classList.add('drag-over');
+                }
+            });
+
+            target.addEventListener('dragleave', () => {
+                target.classList.remove('drag-over');
+            });
+
+            target.addEventListener('drop', (e) => {
+                e.preventDefault();
+                target.classList.remove('drag-over');
+                
+                if (target.classList.contains('filled') || target.classList.contains('sub-sub-target')) {
+                    return;
+                }
+
+                const word = e.dataTransfer.getData('text/plain');
+                const acceptedWord = target.dataset.accept;
+
+                if (word === acceptedWord) {
+                    target.classList.add('filled');
+                    const arrow = target.classList.contains('sub-target') ? '→ ' : '';
+                    target.innerHTML = `${arrow}<div class="dropped-word">${word}</div>`;
+                    
+                    const draggableElement = Array.from(draggables).find(el => el.dataset.word === word);
+                    if (draggableElement) {
+                        draggableElement.classList.add('correct');
+                        draggableElement.draggable = false;
+                    }
+                    
+                    score++;
+                    updateScore();
+                }
+            });
+        });
+
+        function updateScore() {
+            document.getElementById('score').textContent = score;
+            
+            if (score === totalTargets) {
+                const successMsg = document.getElementById('success-message');
+                successMsg.textContent = config.success_message || defaultConfig.success_message;
+                successMsg.style.display = 'block';
+                successMsg.style.background = `linear-gradient(135deg, ${config.success_color || defaultConfig.success_color} 0%, #20c997 100%)`;
+            }
+        }
+
+        function resetGame() {
+            score = 0;
+            updateScore();
+            
+            document.getElementById('success-message').style.display = 'none';
+            
+            const originalLabels = {
+                'Sistema Genital Masculino': 'Arrastar Aqui',
+                'Sistema Genital Feminino': 'Arrastar Aqui',
+                'Função Principal': '(Arrastar aqui)',
+                'Órgãos Principais': '(Arrastar aqui)',
+                'Testículos': '→ (Arrastar aqui)',
+                'Epidídimo': '→ (Arrastar aqui)',
+                'Ducto Deferente': '→ (Arrastar aqui)',
+                'Vesículas Seminais': '→ (Arrastar aqui)',
+                'Próstata': '→ (Arrastar aqui)',
+                'Glândulas Bulbouretrais': '→ (Arrastar aqui)',
+                'Uretra': '→ (Arrastar aqui)',
+                'Pênis': '→ (Arrastar aqui)',
+                'Hormônios': '(Arrastar aqui)',
+                'Testosterona': '��� (Arrastar aqui)',
+                'Ovários': '→ (Arrastar aqui)',
+                'Tubas Uterinas': '→ (Arrastar aqui)',
+                'Útero': '→ (Arrastar aqui)',
+                'Vagina': '→ (Arrastar aqui)',
+                'Vulva': '→ (Arrastar aqui)',
+                'Estrogênio': '→ (Arrastar aqui)',
+                'Progesterona': '→ (Arrastar aqui)',
+                'Ciclo Menstrual': '(Arrastar aqui)'
+            };
+            
+            targets.forEach(target => {
+                if (target.classList.contains('sub-sub-target')) {
+                    return;
+                }
+                
+                target.classList.remove('filled');
+                const acceptWord = target.dataset.accept;
+                if (acceptWord && originalLabels[acceptWord]) {
+                    target.textContent = originalLabels[acceptWord];
+                }
+            });
+            
+            draggables.forEach(draggable => {
+                draggable.classList.remove('correct');
+                draggable.draggable = true;
+                draggable.style.background = `linear-gradient(135deg, ${config.primary_color || defaultConfig.primary_color} 0%, ${config.secondary_color || defaultConfig.secondary_color} 100%)`;
+            });
+        }
+    </script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Explorador do Sistema Genital!</title>
+  <script src="/_sdk/element_sdk.js"></script>
+  <style>
+        body {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        html {
+            height: 100%;
+            width: 100%;
+        }
+        
+        .app-wrapper {
+            width: 100%;
+            min-height: 100%;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            padding: 2rem 1rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            overflow-x: hidden;
+        }
+        
+        .bubble {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.6;
+            animation: float-up linear infinite;
+            pointer-events: none;
+        }
+        
+        @keyframes float-up {
+            0% {
+                transform: translateY(100%) scale(0);
+                opacity: 0;
+            }
+            10% {
+                opacity: 0.6;
+            }
+            90% {
+                opacity: 0.6;
+            }
+            100% {
+                transform: translateY(-1000px) scale(1);
+                opacity: 0;
+            }
+        }
+        
+        .bubble:nth-child(1) { left: 10%; width: 80px; height: 80px; background: rgba(255, 182, 193, 0.6); animation-duration: 15s; animation-delay: 0s; }
+        .bubble:nth-child(2) { left: 20%; width: 60px; height: 60px; background: rgba(173, 216, 230, 0.6); animation-duration: 12s; animation-delay: 2s; }
+        .bubble:nth-child(3) { left: 35%; width: 100px; height: 100px; background: rgba(255, 255, 153, 0.6); animation-duration: 18s; animation-delay: 4s; }
+        .bubble:nth-child(4) { left: 50%; width: 70px; height: 70px; background: rgba(152, 251, 152, 0.6); animation-duration: 14s; animation-delay: 1s; }
+        .bubble:nth-child(5) { left: 65%; width: 90px; height: 90px; background: rgba(221, 160, 221, 0.6); animation-duration: 16s; animation-delay: 3s; }
+        .bubble:nth-child(6) { left: 75%; width: 65px; height: 65px; background: rgba(255, 218, 185, 0.6); animation-duration: 13s; animation-delay: 5s; }
+        .bubble:nth-child(7) { left: 85%; width: 85px; height: 85px; background: rgba(176, 224, 230, 0.6); animation-duration: 17s; animation-delay: 2.5s; }
+        .bubble:nth-child(8) { left: 15%; width: 75px; height: 75px; background: rgba(255, 192, 203, 0.6); animation-duration: 15.5s; animation-delay: 4.5s; }
+        
+        h1 {
+            color: #ffffff;
+            text-align: center;
+            margin: 0 0 1rem 0;
+            font-size: 2rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .instructions {
+            color: #ffffff;
+            text-align: center;
+            margin-bottom: 1.5rem;
+            font-size: 1.1rem;
+            opacity: 0.95;
+        }
+        
+        #game-container {
+            display: flex;
+            flex-direction: row;
+            width: 100%;
+            max-width: 1400px;
+            gap: 1.5rem;
+            background-color: #ffffff;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+        
+        #draggable-words {
+            flex: 0 0 300px;
+            padding: 1.5rem;
+            border: 4px solid #ffd700;
+            border-radius: 16px;
+            background: linear-gradient(135deg, #ffebcd 0%, #ffd700 100%);
+            max-height: 800px;
+            overflow-y: auto;
+            box-shadow: 0 8px 24px rgba(255, 215, 0, 0.4);
+        }
+        
+        #draggable-words h2 {
+            color: #8b4513;
+            font-size: 1.4rem;
+            margin: 0 0 1rem 0;
+            text-align: center;
+            border-bottom: 3px solid #ff6b6b;
+            padding-bottom: 0.5rem;
+            text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.5);
+        }
+        
+        .draggable {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ff8e53 100%);
+            color: white;
+            padding: 0.7rem 1rem;
+            margin: 0.5rem 0;
+            border-radius: 12px;
+            cursor: grab;
+            text-align: center;
+            font-size: 1rem;
+            font-weight: 600;
+            box-shadow: 0 6px 12px rgba(255, 107, 107, 0.4);
+            transition: all 0.3s ease;
+            user-select: none;
+            border: 3px solid #ff8e53;
+        }
+        
+        .draggable:hover {
+            transform: translateY(-4px) scale(1.05);
+            box-shadow: 0 8px 20px rgba(255, 107, 107, 0.6);
+        }
+        
+        .draggable:active {
+            cursor: grabbing;
+            transform: scale(0.95);
+        }
+        
+        .draggable.correct {
+            background: linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%);
+            cursor: default;
+            opacity: 0.7;
+            border-color: #44a08d;
+        }
+        
+        .draggable.correct:hover {
+            transform: none;
+        }
+        
+        #mind-map-targets {
+            flex: 1;
+            padding: 2rem;
+            border: 4px solid #ff6b6b;
+            border-radius: 16px;
+            background: linear-gradient(135deg, #e0f7fa 0%, #b2ebf2 100%);
+            position: relative;
+            min-height: 1000px;
+            overflow-y: auto;
+            box-shadow: 0 8px 24px rgba(255, 107, 107, 0.4);
+        }
+        
+        .details-container {
+            display: flex;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 2rem;
+        }
+        
+        .target-group {
+            flex: 1;
+            min-width: 400px;
+            padding: 1.5rem;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 12px;
+            border: 2px solid rgba(255, 255, 255, 0.5);
+        }
+        
+        .target-group h3 {
+            color: #333;
+            font-size: 1.3rem;
+            margin: 0 0 1rem 0;
+            text-align: center;
+            padding: 0.5rem;
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 8px;
+            text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8);
+        }
+        
+        .target-group .target {
+            background: linear-gradient(135deg, #9c27b0 0%, #e91e63 100%);
+            color: white;
+            padding: 0.8rem 1rem;
+            margin: 0.5rem 0;
+            border-radius: 10px;
+            border: 3px dashed rgba(255, 255, 255, 0.9);
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-align: left;
+            transition: all 0.3s ease;
+        }
+        
+        .target-group .sub-target {
+            margin-left: 1.5rem;
+            background: linear-gradient(135deg, #4caf50 0%, #66bb6a 100%);
+            font-size: 0.85rem;
+        }
+        
+        .target-group .sub-sub-target {
+            margin-left: 3rem;
+            background: linear-gradient(135deg, #2196f3 0%, #03a9f4 100%);
+            border-style: solid;
+            border-color: white;
+            opacity: 0.9;
+            font-size: 0.8rem;
+            cursor: default;
+        }
+        
+        .flowchart-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2.5rem;
+            padding: 2rem 0;
+        }
+        
+        .flowchart-level {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.5rem;
+            width: 100%;
+        }
+        
+        .flowchart-row {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+            width: 100%;
+        }
+        
+        .flow-node {
+            min-width: 150px;
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.95rem;
+            font-weight: 700;
+            text-align: center;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+        
+        .flow-node:hover {
+            transform: scale(1.05);
+        }
+        
+        .root-node {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ff8e53 100%);
+            border: 5px solid #ffd700;
+            color: white;
+            font-size: 1.4rem;
+            font-weight: 800;
+            min-width: 250px;
+            padding: 1.5rem 2rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        .level1-node {
+            background: linear-gradient(135deg, #9c27b0 0%, #e91e63 100%);
+            border: 4px solid #ffd700;
+            color: white;
+            min-width: 180px;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+        }
+        
+        .level2-node {
+            background: linear-gradient(135deg, #4caf50 0%, #66bb6a 100%);
+            border: 3px solid #ffd700;
+            color: white;
+            min-width: 140px;
+            font-size: 0.85rem;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+        }
+        
+        .target {
+            border: 3px dashed rgba(255, 255, 255, 0.9) !important;
+            background: rgba(255, 255, 255, 0.25) !important;
+            backdrop-filter: blur(5px);
+        }
+        
+        .target.drag-over {
+            background: rgba(255, 255, 255, 0.5) !important;
+            border-color: white !important;
+            border-style: solid !important;
+            transform: scale(1.1) !important;
+            box-shadow: 0 0 30px rgba(255, 255, 255, 0.9) !important;
+        }
+        
+        .target.filled {
+            border-style: solid !important;
+            border-color: white !important;
+            background: rgba(255, 255, 255, 0.4) !important;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.7) !important;
+        }
+        
+        .target .dropped-word {
+            color: white;
+            font-weight: 800;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            font-size: 0.9rem;
+        }
+        
+        #score-container {
+            margin-top: 1.5rem;
+            padding: 1.2rem 2.5rem;
+            background: linear-gradient(135deg, #ffeb3b 0%, #ffc107 100%);
+            border-radius: 16px;
+            box-shadow: 0 6px 20px rgba(255, 193, 7, 0.5);
+            text-align: center;
+            border: 4px solid #ff9800;
+        }
+        
+        #score-text {
+            font-size: 1.5rem;
+            color: #bf360c;
+            font-weight: 700;
+            text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.5);
+        }
+        
+        #success-message {
+            display: none;
+            margin-top: 1rem;
+            padding: 1.5rem 2.5rem;
+            background: linear-gradient(135deg, #4caf50 0%, #8bc34a 100%);
+            color: white;
+            border-radius: 16px;
+            font-size: 1.4rem;
+            font-weight: 700;
+            box-shadow: 0 6px 24px rgba(76, 175, 80, 0.6);
+            animation: slideIn 0.5s ease, pulse 2s infinite;
+            border: 4px solid #388e3c;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+        }
+        
+        button {
+            padding: 1rem 2.5rem;
+            font-size: 1.2rem;
+            background: linear-gradient(135deg, #ff5722 0%, #f44336 100%);
+            color: white;
+            border: 4px solid #d32f2f;
+            border-radius: 16px;
+            cursor: pointer;
+            margin-top: 1rem;
+            font-weight: 700;
+            box-shadow: 0 6px 20px rgba(244, 67, 54, 0.5);
+            transition: all 0.3s ease;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+        }
+        
+        button:hover {
+            transform: translateY(-4px) scale(1.05);
+            box-shadow: 0 8px 28px rgba(244, 67, 54, 0.7);
+        }
+        
+        button:active {
+            transform: translateY(0) scale(0.95);
+        }
+        
+        @media (max-width: 1024px) {
+            #game-container {
+                flex-direction: column;
+            }
+            
+            #draggable-words {
+                flex: 1;
+                max-height: 400px;
+                flex-basis: auto;
+            }
+            
+            .flow-node {
+                min-width: 120px;
+                font-size: 0.85rem;
+                padding: 0.8rem 1rem;
+            }
+            
+            .root-node {
+                min-width: 200px;
+                font-size: 1.2rem;
+            }
+            
+            .level1-node {
+                min-width: 150px;
+            }
+            
+            .level2-node {
+                min-width: 110px;
+                font-size: 0.75rem;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.6rem;
+            }
+            
+            .instructions {
+                font-size: 1rem;
+            }
+            
+            .draggable {
+                font-size: 0.95rem;
+                padding: 0.6rem 0.9rem;
+            }
+            
+            button {
+                padding: 0.9rem 2rem;
+                font-size: 1.1rem;
+            }
+            
+            #score-text {
+                font-size: 1.3rem;
+            }
+            
+            .bubble {
+                display: none;
+            }
+            
+            .flow-node {
+                min-width: 100px;
+                font-size: 0.75rem;
+                padding: 0.6rem 0.8rem;
+            }
+            
+            .root-node {
+                min-width: 160px;
+                font-size: 1rem;
+            }
+            
+            .level1-node {
+                min-width: 120px;
+                font-size: 0.8rem;
+            }
+            
+            .level2-node {
+                min-width: 90px;
+                font-size: 0.65rem;
+            }
+        }
+    </style>
+  <div class="app-wrapper">
+   <div class="bubble"></div>
+   <div class="bubble"></div>
+   <div class="bubble"></div>
+   <div class="bubble"></div>
+   <div class="bubble"></div>
+   <div class="bubble"></div>
+   <div class="bubble"></div>
+   <div class="bubble"></div>
+   <h1 id="game-title">🧬 Monte o Mapa Mental do Sistema Genital!</h1>
+   <p class="instructions" id="instructions">Arraste as palavras para os retângulos do fluxograma hierárquico! 🎯</p>
+   <div id="game-container">
+    <div id="draggable-words">
+     <h2>📝 Palavras</h2>
+     <div class="draggable" draggable="true" data-word="Função Principal">
+      Função Principal
+     </div>
+     <div class="draggable" draggable="true" data-word="Órgãos Principais">
+      Órgãos Principais
+     </div>
+     <div class="draggable" draggable="true" data-word="Hormônios">
+      Hormônios
+     </div>
+     <div class="draggable" draggable="true" data-word="Testículos">
+      Testículos
+     </div>
+     <div class="draggable" draggable="true" data-word="Epidídimo">
+      Epidídimo
+     </div>
+     <div class="draggable" draggable="true" data-word="Ducto Deferente">
+      Ducto Deferente
+     </div>
+     <div class="draggable" draggable="true" data-word="Vesículas Seminais">
+      Vesículas Seminais
+     </div>
+     <div class="draggable" draggable="true" data-word="Próstata">
+      Próstata
+     </div>
+     <div class="draggable" draggable="true" data-word="Glândulas Bulbouretrais">
+      Glândulas Bulbouretrais
+     </div>
+     <div class="draggable" draggable="true" data-word="Uretra">
+      Uretra
+     </div>
+     <div class="draggable" draggable="true" data-word="Pênis">
+      Pênis
+     </div>
+     <div class="draggable" draggable="true" data-word="Testosterona">
+      Testosterona
+     </div>
+     <div class="draggable" draggable="true" data-word="Ovários">
+      Ovários
+     </div>
+     <div class="draggable" draggable="true" data-word="Tubas Uterinas">
+      Tubas Uterinas
+     </div>
+     <div class="draggable" draggable="true" data-word="Útero">
+      Útero
+     </div>
+     <div class="draggable" draggable="true" data-word="Vagina">
+      Vagina
+     </div>
+     <div class="draggable" draggable="true" data-word="Vulva">
+      Vulva
+     </div>
+     <div class="draggable" draggable="true" data-word="Estrogênio">
+      Estrogênio
+     </div>
+     <div class="draggable" draggable="true" data-word="Progesterona">
+      Progesterona
+     </div>
+     <div class="draggable" draggable="true" data-word="Ciclo Menstrual">
+      Ciclo Menstrual
+     </div>
+    </div>
+    <div id="mind-map-targets">
+     <div class="flowchart-container"><!-- NÍVEL 0: NÓ RAIZ -->
+      <div class="flowchart-level">
+       <div class="flow-node root-node">
+        SISTEMA GENITAL
+       </div>
+      </div><!-- NÍVEL 1: PRIMEIRO FILHO -->
+      <div class="flowchart-level">
+       <div class="flowchart-row">
+        <div class="flow-node level1-node target" data-accept="Função Principal">
+         Arrastar Aqui
+        </div>
+       </div>
+      </div><!-- NÍVEL 2: CATEGORIAS PRINCIPAIS -->
+      <div class="flowchart-level">
+       <div class="flowchart-row">
+        <div class="flow-node level1-node target" data-accept="Hormônios">
+         Arrastar Aqui
+        </div>
+        <div class="flow-node level1-node target" data-accept="Órgãos Principais">
+         Arrastar Aqui
+        </div>
+       </div>
+      </div><!-- NÍVEL 3: FILHOS DE HORMÔNIOS -->
+      <div class="flowchart-level">
+       <div class="flowchart-row">
+        <div class="flow-node level2-node target" data-accept="Testosterona">
+         Arrastar
+        </div>
+        <div class="flow-node level2-node target" data-accept="Estrogênio">
+         Arrastar
+        </div>
+        <div class="flow-node level2-node target" data-accept="Progesterona">
+         Arrastar
+        </div>
+        <div class="flow-node level2-node target" data-accept="Ciclo Menstrual">
+         Arrastar
+        </div>
+       </div>
+      </div><!-- NÍVEL 3: FILHOS DE ÓRGÃOS - LINHA 1 -->
+      <div class="flowchart-level">
+       <div class="flowchart-row">
+        <div class="flow-node level2-node target" data-accept="Testículos">
+         Arrastar
+        </div>
+        <div class="flow-node level2-node target" data-accept="Ovários">
+         Arrastar
+        </div>
+        <div class="flow-node level2-node target" data-accept="Epidídimo">
+         Arrastar
+        </div>
+        <div class="flow-node level2-node target" data-accept="Tubas Uterinas">
+         Arrastar
+        </div>
+       </div>
+      </div><!-- NÍVEL 3: FILHOS DE ÓRGÃOS - LINHA 2 -->
+      <div class="flowchart-level">
+       <div class="flowchart-row">
+        <div class="flow-node level2-node target" data-accept="Ducto Deferente">
+         Arrastar
+        </div>
+        <div class="flow-node level2-node target" data-accept="Útero">
+         Arrastar
+        </div>
+        <div class="flow-node level2-node target" data-accept="Vesículas Seminais">
+         Arrastar
+        </div>
+        <div class="flow-node level2-node target" data-accept="Vagina">
+         Arrastar
+        </div>
+       </div>
+      </div><!-- NÍVEL 3: FILHOS DE ÓRGÃOS - LINHA 3 -->
+      <div class="flowchart-level">
+       <div class="flowchart-row">
+        <div class="flow-node level2-node target" data-accept="Próstata">
+         Arrastar
+        </div>
+        <div class="flow-node level2-node target" data-accept="Vulva">
+         Arrastar
+        </div>
+        <div class="flow-node level2-node target" data-accept="Glândulas Bulbouretrais">
+         Arrastar
+        </div>
+        <div class="flow-node level2-node target" data-accept="Uretra">
+         Arrastar
+        </div>
+       </div>
+      </div><!-- NÍVEL 3: FILHOS DE ÓRGÃOS - LINHA 4 (FINAL) -->
+      <div class="flowchart-level">
+       <div class="flowchart-row">
+        <div class="flow-node level2-node target" data-accept="Pênis">
+         Arrastar
+        </div>
+       </div>
+      </div>
+     </div>
+    </div>
+   </div>
+   <div id="score-container">
+    <div id="score-text">
+     ✨ Acertos: <span id="score">0</span> / 20
+    </div>
+   </div>
+   <div id="success-message"></div><button onclick="resetGame()">🔄 Reiniciar Jogo</button>
+  </div>
+  <script>
+        const defaultConfig = {
+            game_title: "🧬 Monte o Mapa Mental do Sistema Genital!",
+            instructions: "Arraste as palavras para os retângulos do fluxograma hierárquico! 🎯",
+            success_message: "🎉 Parabéns! Você completou o fluxograma hierárquico corretamente!",
+            primary_color: "#667eea",
+            secondary_color: "#764ba2",
+            success_color: "#28a745",
+            background_color: "#ffffff",
+            text_color: "#495057"
+        };
+
+        let config = { ...defaultConfig };
+        let score = 0;
+        let totalTargets = 20;
+
+        // Inicializar SDK
+        if (window.elementSdk) {
+            window.elementSdk.init({
+                defaultConfig: defaultConfig,
+                onConfigChange: async (newConfig) => {
+                    config = { ...defaultConfig, ...newConfig };
+                    updateUIFromConfig();
+                },
+                mapToCapabilities: (cfg) => ({
+                    recolorables: [
+                        {
+                            get: () => cfg.primary_color || defaultConfig.primary_color,
+                            set: (value) => {
+                                cfg.primary_color = value;
+                                window.elementSdk.setConfig({ primary_color: value });
+                            }
+                        },
+                        {
+                            get: () => cfg.success_color || defaultConfig.success_color,
+                            set: (value) => {
+                                cfg.success_color = value;
+                                window.elementSdk.setConfig({ success_color: value });
+                            }
+                        },
+                        {
+                            get: () => cfg.background_color || defaultConfig.background_color,
+                            set: (value) => {
+                                cfg.background_color = value;
+                                window.elementSdk.setConfig({ background_color: value });
+                            }
+                        },
+                        {
+                            get: () => cfg.text_color || defaultConfig.text_color,
+                            set: (value) => {
+                                cfg.text_color = value;
+                                window.elementSdk.setConfig({ text_color: value });
+                            }
+                        }
+                    ],
+                    borderables: [],
+                    fontEditable: undefined,
+                    fontSizeable: undefined
+                }),
+                mapToEditPanelValues: (cfg) => new Map([
+                    ["game_title", cfg.game_title || defaultConfig.game_title],
+                    ["instructions", cfg.instructions || defaultConfig.instructions],
+                    ["success_message", cfg.success_message || defaultConfig.success_message]
+                ])
+            });
+        }
+
+        function updateUIFromConfig() {
+            document.getElementById('game-title').innerHTML = config.game_title || defaultConfig.game_title;
+            document.getElementById('instructions').textContent = config.instructions || defaultConfig.instructions;
+            
+            const appWrapper = document.querySelector('.app-wrapper');
+            appWrapper.style.background = `linear-gradient(135deg, ${config.primary_color || defaultConfig.primary_color} 0%, ${config.secondary_color || defaultConfig.secondary_color} 100%)`;
+            
+            document.querySelectorAll('.draggable:not(.correct)').forEach(el => {
+                el.style.background = `linear-gradient(135deg, ${config.primary_color || defaultConfig.primary_color} 0%, ${config.secondary_color || defaultConfig.secondary_color} 100%)`;
+            });
+            
+            document.querySelectorAll('.draggable.correct').forEach(el => {
+                el.style.background = `linear-gradient(135deg, ${config.success_color || defaultConfig.success_color} 0%, #20c997 100%)`;
+            });
+            
+            document.querySelectorAll('button').forEach(el => {
+                el.style.background = `linear-gradient(135deg, ${config.primary_color || defaultConfig.primary_color} 0%, ${config.secondary_color || defaultConfig.secondary_color} 100%)`;
+            });
+            
+            const gameContainer = document.getElementById('game-container');
+            gameContainer.style.backgroundColor = config.background_color || defaultConfig.background_color;
+            
+            document.querySelectorAll('h2, #score-text').forEach(el => {
+                el.style.color = config.text_color || defaultConfig.text_color;
+            });
+        }
+
+        // Drag and Drop functionality
+        const draggables = document.querySelectorAll('.draggable');
+        const targets = document.querySelectorAll('.target');
+
+        draggables.forEach(draggable => {
+            draggable.addEventListener('dragstart', (e) => {
+                if (!draggable.classList.contains('correct')) {
+                    e.dataTransfer.setData('text/plain', draggable.dataset.word);
+                    e.dataTransfer.effectAllowed = 'move';
+                }
+            });
+        });
+
+        targets.forEach(target => {
+            target.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                if (!target.classList.contains('filled')) {
+                    target.classList.add('drag-over');
+                }
+            });
+
+            target.addEventListener('dragleave', () => {
+                target.classList.remove('drag-over');
+            });
+
+            target.addEventListener('drop', (e) => {
+                e.preventDefault();
+                target.classList.remove('drag-over');
+                
+                if (target.classList.contains('filled')) {
+                    return;
+                }
+
+                const word = e.dataTransfer.getData('text/plain');
+                const acceptedWord = target.dataset.accept;
+
+                if (word === acceptedWord) {
+                    target.classList.add('filled');
+                    target.innerHTML = `<div class="dropped-word">${word}</div>`;
+                    
+                    const draggableElement = Array.from(draggables).find(el => el.dataset.word === word);
+                    if (draggableElement) {
+                        draggableElement.classList.add('correct');
+                        draggableElement.draggable = false;
+                    }
+                    
+                    score++;
+                    updateScore();
+                }
+            });
+        });
+
+        function updateScore() {
+            document.getElementById('score').textContent = score;
+            
+            if (score === totalTargets) {
+                const successMsg = document.getElementById('success-message');
+                successMsg.textContent = config.success_message || defaultConfig.success_message;
+                successMsg.style.display = 'block';
+                successMsg.style.background = `linear-gradient(135deg, ${config.success_color || defaultConfig.success_color} 0%, #20c997 100%)`;
+            }
+        }
+
+        function resetGame() {
+            score = 0;
+            updateScore();
+            
+            document.getElementById('success-message').style.display = 'none';
+            
+            targets.forEach(target => {
+                target.classList.remove('filled');
+                target.innerHTML = target.classList.contains('level1-node') ? 'Arrastar Aqui' : 'Arrastar';
+            });
+            
+            draggables.forEach(draggable => {
+                draggable.classList.remove('correct');
+                draggable.draggable = true;
+                draggable.style.background = `linear-gradient(135deg, ${config.primary_color || defaultConfig.primary_color} 0%, ${config.secondary_color || defaultConfig.secondary_color} 100%)`;
+            });
+        }
+    </script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Explorador do Sistema Genital!</title>
+  <script src="/_sdk/element_sdk.js"></script>
+  <style>
+        body {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        html {
+            height: 100%;
+            width: 100%;
+        }
+        
+        .app-wrapper {
+            width: 100%;
+            min-height: 100%;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            padding: 2rem 1rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            overflow-x: hidden;
+        }
+        
+        .bubble {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.6;
+            animation: float-up linear infinite;
+            pointer-events: none;
+        }
+        
+        @keyframes float-up {
+            0% {
+                transform: translateY(100%) scale(0);
+                opacity: 0;
+            }
+            10% {
+                opacity: 0.6;
+            }
+            90% {
+                opacity: 0.6;
+            }
+            100% {
+                transform: translateY(-1000px) scale(1);
+                opacity: 0;
+            }
+        }
+        
+        .bubble:nth-child(1) { left: 10%; width: 80px; height: 80px; background: rgba(255, 182, 193, 0.6); animation-duration: 15s; animation-delay: 0s; }
+        .bubble:nth-child(2) { left: 20%; width: 60px; height: 60px; background: rgba(173, 216, 230, 0.6); animation-duration: 12s; animation-delay: 2s; }
+        .bubble:nth-child(3) { left: 35%; width: 100px; height: 100px; background: rgba(255, 255, 153, 0.6); animation-duration: 18s; animation-delay: 4s; }
+        .bubble:nth-child(4) { left: 50%; width: 70px; height: 70px; background: rgba(152, 251, 152, 0.6); animation-duration: 14s; animation-delay: 1s; }
+        .bubble:nth-child(5) { left: 65%; width: 90px; height: 90px; background: rgba(221, 160, 221, 0.6); animation-duration: 16s; animation-delay: 3s; }
+        .bubble:nth-child(6) { left: 75%; width: 65px; height: 65px; background: rgba(255, 218, 185, 0.6); animation-duration: 13s; animation-delay: 5s; }
+        .bubble:nth-child(7) { left: 85%; width: 85px; height: 85px; background: rgba(176, 224, 230, 0.6); animation-duration: 17s; animation-delay: 2.5s; }
+        .bubble:nth-child(8) { left: 15%; width: 75px; height: 75px; background: rgba(255, 192, 203, 0.6); animation-duration: 15.5s; animation-delay: 4.5s; }
+        
+        h1 {
+            color: #ffffff;
+            text-align: center;
+            margin: 0 0 1rem 0;
+            font-size: 2rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .instructions {
+            color: #ffffff;
+            text-align: center;
+            margin-bottom: 1.5rem;
+            font-size: 1.1rem;
+            opacity: 0.95;
+        }
+        
+        #game-container {
+            display: flex;
+            flex-direction: row;
+            width: 100%;
+            max-width: 1400px;
+            gap: 1.5rem;
+            background-color: #ffffff;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+        
+        #draggable-words {
+            flex: 0 0 300px;
+            padding: 1.5rem;
+            border: 4px solid #ffd700;
+            border-radius: 16px;
+            background: linear-gradient(135deg, #ffebcd 0%, #ffd700 100%);
+            max-height: 900px;
+            overflow-y: auto;
+            box-shadow: 0 8px 24px rgba(255, 215, 0, 0.4);
+        }
+        
+        #draggable-words h2 {
+            color: #8b4513;
+            font-size: 1.4rem;
+            margin: 0 0 1rem 0;
+            text-align: center;
+            border-bottom: 3px solid #ff6b6b;
+            padding-bottom: 0.5rem;
+            text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.5);
+        }
+        
+        .draggable {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ff8e53 100%);
+            color: white;
+            padding: 0.7rem 1rem;
+            margin: 0.5rem 0;
+            border-radius: 12px;
+            cursor: grab;
+            text-align: center;
+            font-size: 1rem;
+            font-weight: 600;
+            box-shadow: 0 6px 12px rgba(255, 107, 107, 0.4);
+            transition: all 0.3s ease;
+            user-select: none;
+            border: 3px solid #ff8e53;
+        }
+        
+        .draggable:hover {
+            transform: translateY(-4px) scale(1.05);
+            box-shadow: 0 8px 20px rgba(255, 107, 107, 0.6);
+        }
+        
+        .draggable:active {
+            cursor: grabbing;
+            transform: scale(0.95);
+        }
+        
+        .draggable.correct {
+            background: linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%);
+            cursor: default;
+            opacity: 0.7;
+            border-color: #44a08d;
+        }
+        
+        .draggable.correct:hover {
+            transform: none;
+        }
+        
+        #mind-map-targets {
+            flex: 1;
+            padding: 2rem;
+            border: 4px solid #ff6b6b;
+            border-radius: 16px;
+            background: linear-gradient(135deg, #e0f7fa 0%, #b2ebf2 100%);
+            position: relative;
+            min-height: 900px;
+            overflow: visible;
+            box-shadow: 0 8px 24px rgba(255, 107, 107, 0.4);
+        }
+        
+        .central-node {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: 200px;
+            height: 100px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #ff6b6b 0%, #ff8e53 100%);
+            border: 6px solid #ffd700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            font-weight: 800;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 8px 32px rgba(255, 107, 107, 0.6);
+            z-index: 10;
+            text-align: center;
+            padding: 1rem;
+        }
+        
+        .branch-node {
+            position: absolute;
+            width: 160px;
+            height: 80px;
+            border-radius: 10px;
+            border: 5px solid #ffd700;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+            font-weight: 700;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 6px 20px rgba(156, 39, 176, 0.5);
+            transition: all 0.3s ease;
+            padding: 0.8rem;
+            text-align: center;
+        }
+        
+        .branch-node:hover {
+            transform: scale(1.1);
+            box-shadow: 0 8px 28px rgba(156, 39, 176, 0.7);
+        }
+        
+        .sub-node {
+            position: absolute;
+            min-width: 140px;
+            min-height: 70px;
+            border-radius: 8px;
+            border: 4px solid #ffd700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 4px 16px rgba(76, 175, 80, 0.4);
+            transition: all 0.3s ease;
+            padding: 0.6rem;
+            text-align: center;
+        }
+        
+        .sub-node:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(76, 175, 80, 0.6);
+        }
+        
+        .target {
+            border: 3px dashed rgba(255, 255, 255, 0.9);
+            background: linear-gradient(135deg, #9c27b0 0%, #e91e63 100%);
+            color: white;
+        }
+        
+        .target.drag-over {
+            background: rgba(255, 255, 255, 0.5);
+            border-color: white;
+            border-style: solid;
+            transform: scale(1.15) !important;
+            box-shadow: 0 0 30px rgba(255, 255, 255, 0.9) !important;
+        }
+        
+        .target.filled {
+            border-color: white;
+            border-style: solid;
+            background: linear-gradient(135deg, #4caf50 0%, #66bb6a 100%);
+            color: white;
+            box-shadow: 0 0 20px rgba(76, 175, 80, 0.8);
+        }
+        
+        .target .dropped-word {
+            color: white;
+            font-weight: 800;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            font-size: 0.9rem;
+        }
+        
+        #score-container {
+            margin-top: 1.5rem;
+            padding: 1.2rem 2.5rem;
+            background: linear-gradient(135deg, #ffeb3b 0%, #ffc107 100%);
+            border-radius: 16px;
+            box-shadow: 0 6px 20px rgba(255, 193, 7, 0.5);
+            text-align: center;
+            border: 4px solid #ff9800;
+        }
+        
+        #score-text {
+            font-size: 1.5rem;
+            color: #bf360c;
+            font-weight: 700;
+            text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.5);
+        }
+        
+        #success-message {
+            display: none;
+            margin-top: 1rem;
+            padding: 1.5rem 2.5rem;
+            background: linear-gradient(135deg, #4caf50 0%, #8bc34a 100%);
+            color: white;
+            border-radius: 16px;
+            font-size: 1.4rem;
+            font-weight: 700;
+            box-shadow: 0 6px 24px rgba(76, 175, 80, 0.6);
+            animation: slideIn 0.5s ease, pulse 2s infinite;
+            border: 4px solid #388e3c;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+        }
+        
+        button {
+            padding: 1rem 2.5rem;
+            font-size: 1.2rem;
+            background: linear-gradient(135deg, #ff5722 0%, #f44336 100%);
+            color: white;
+            border: 4px solid #d32f2f;
+            border-radius: 16px;
+            cursor: pointer;
+            margin-top: 1rem;
+            font-weight: 700;
+            box-shadow: 0 6px 20px rgba(244, 67, 54, 0.5);
+            transition: all 0.3s ease;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+        }
+        
+        button:hover {
+            transform: translateY(-4px) scale(1.05);
+            box-shadow: 0 8px 28px rgba(244, 67, 54, 0.7);
+        }
+        
+        button:active {
+            transform: translateY(0) scale(0.95);
+        }
+        
+        @media (max-width: 1024px) {
+            #game-container {
+                flex-direction: column;
+            }
+            
+            #draggable-words {
+                flex: 1;
+                max-height: 400px;
+                flex-basis: auto;
+            }
+            
+            #mind-map-targets {
+                min-height: 1000px;
+            }
+            
+            .central-node {
+                width: 150px;
+                height: 80px;
+                font-size: 1.1rem;
+            }
+            
+            .branch-node {
+                width: 120px;
+                height: 60px;
+                font-size: 0.75rem;
+            }
+            
+            .sub-node {
+                min-width: 100px;
+                min-height: 55px;
+                font-size: 0.65rem;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.6rem;
+            }
+            
+            .instructions {
+                font-size: 1rem;
+            }
+            
+            #mind-map-targets {
+                min-height: 1200px;
+            }
+            
+            .central-node {
+                width: 130px;
+                height: 70px;
+                font-size: 0.85rem;
+            }
+            
+            .branch-node {
+                width: 110px;
+                height: 55px;
+                font-size: 0.65rem;
+            }
+            
+            .sub-node {
+                min-width: 90px;
+                min-height: 50px;
+                font-size: 0.55rem;
+            }
+            
+            .draggable {
+                font-size: 0.95rem;
+                padding: 0.6rem 0.9rem;
+            }
+            
+            button {
+                padding: 0.9rem 2rem;
+                font-size: 1.1rem;
+            }
+            
+            #score-text {
+                font-size: 1.3rem;
+            }
+            
+            .bubble {
+                display: none;
+            }
+        }
+    </style>
+  <div class="app-wrapper">
+   <div class="bubble"></div>
+   <div class="bubble"></div>
+   <div class="bubble"></div>
+   <div class="bubble"></div>
+   <div class="bubble"></div>
+   <div class="bubble"></div>
+   <div class="bubble"></div>
+   <div class="bubble"></div>
+   <h1 id="game-title">🧬 Monte o Mapa Mental do Sistema Genital!</h1>
+   <p class="instructions" id="instructions">Arraste as palavras da esquerda para os círculos no mapa mental! 🎯</p>
+   <div id="game-container">
+    <div id="draggable-words">
+     <h2>📝 Palavras</h2>
+     <div class="draggable" draggable="true" data-word="Função Principal">
+      Função Principal
+     </div>
+     <div class="draggable" draggable="true" data-word="Órgãos Principais">
+      Órgãos Principais
+     </div>
+     <div class="draggable" draggable="true" data-word="Hormônios">
+      Hormônios
+     </div>
+     <div class="draggable" draggable="true" data-word="Testículos">
+      Testículos
+     </div>
+     <div class="draggable" draggable="true" data-word="Epidídimo">
+      Epidídimo
+     </div>
+     <div class="draggable" draggable="true" data-word="Ducto Deferente">
+      Ducto Deferente
+     </div>
+     <div class="draggable" draggable="true" data-word="Vesículas Seminais">
+      Vesículas Seminais
+     </div>
+     <div class="draggable" draggable="true" data-word="Próstata">
+      Próstata
+     </div>
+     <div class="draggable" draggable="true" data-word="Glândulas Bulbouretrais">
+      Glândulas Bulbouretrais
+     </div>
+     <div class="draggable" draggable="true" data-word="Uretra">
+      Uretra
+     </div>
+     <div class="draggable" draggable="true" data-word="Pênis">
+      Pênis
+     </div>
+     <div class="draggable" draggable="true" data-word="Testosterona">
+      Testosterona
+     </div>
+     <div class="draggable" draggable="true" data-word="Ovários">
+      Ovários
+     </div>
+     <div class="draggable" draggable="true" data-word="Tubas Uterinas">
+      Tubas Uterinas
+     </div>
+     <div class="draggable" draggable="true" data-word="Útero">
+      Útero
+     </div>
+     <div class="draggable" draggable="true" data-word="Vagina">
+      Vagina
+     </div>
+     <div class="draggable" draggable="true" data-word="Vulva">
+      Vulva
+     </div>
+     <div class="draggable" draggable="true" data-word="Estrogênio">
+      Estrogênio
+     </div>
+     <div class="draggable" draggable="true" data-word="Progesterona">
+      Progesterona
+     </div>
+     <div class="draggable" draggable="true" data-word="Ciclo Menstrual">
+      Ciclo Menstrual
+     </div>
+    </div>
+    <div id="mind-map-targets">
+     <div class="central-node">
+      SISTEMA<br>
+      GENITAL
+     </div><!-- Nível 1: Função Principal - Topo -->
+     <div class="branch-node target" data-accept="Função Principal" style="left: 50%; top: 8%; transform: translateX(-50%);">
+      Arrastar<br>
+      Aqui
+     </div><!-- Nível 2: Hormônios e Órgãos - Esquerda e Direita -->
+     <div class="branch-node target" data-accept="Hormônios" style="left: 15%; top: 25%;">
+      Arrastar<br>
+      Aqui
+     </div>
+     <div class="branch-node target" data-accept="Órgãos Principais" style="right: 15%; top: 25%;">
+      Arrastar<br>
+      Aqui
+     </div><!-- Nível 3: Sub-nós de Hormônios (Esquerda) -->
+     <div class="sub-node target" data-accept="Testosterona" style="left: 2%; top: 42%;">
+      Arrastar<br>
+      Aqui
+     </div>
+     <div class="sub-node target" data-accept="Estrogênio" style="left: 18%; top: 42%;">
+      Arrastar<br>
+      Aqui
+     </div>
+     <div class="sub-node target" data-accept="Progesterona" style="left: 10%; top: 55%;">
+      Arrastar<br>
+      Aqui
+     </div>
+     <div class="sub-node target" data-accept="Ciclo Menstrual" style="left: 2%; top: 68%;">
+      Arrastar<br>
+      Aqui
+     </div><!-- Nível 3: Sub-nós de Órgãos Principais (Direita - Linha 1) -->
+     <div class="sub-node target" data-accept="Testículos" style="right: 2%; top: 42%;">
+      Arrastar<br>
+      Aqui
+     </div>
+     <div class="sub-node target" data-accept="Ovários" style="right: 18%; top: 42%;">
+      Arrastar<br>
+      Aqui
+     </div>
+     <div class="sub-node target" data-accept="Epidídimo" style="right: 10%; top: 55%;">
+      Arrastar<br>
+      Aqui
+     </div><!-- Nível 3: Sub-nós de Órgãos Principais (Direita - Linha 2) -->
+     <div class="sub-node target" data-accept="Tubas Uterinas" style="right: 2%; top: 68%;">
+      Arrastar<br>
+      Aqui
+     </div>
+     <div class="sub-node target" data-accept="Ducto Deferente" style="right: 18%; top: 68%;">
+      Arrastar<br>
+      Aqui
+     </div>
+     <div class="sub-node target" data-accept="Útero" style="right: 10%; top: 81%;">
+      Arrastar<br>
+      Aqui
+     </div><!-- Nível 3: Sub-nós de Órgãos Principais (Direita - Linha 3) -->
+     <div class="sub-node target" data-accept="Vesículas Seminais" style="left: 50%; top: 81%; transform: translateX(-50%);">
+      Arrastar<br>
+      Aqui
+     </div>
+     <div class="sub-node target" data-accept="Próstata" style="left: 35%; top: 68%;">
+      Arrastar<br>
+      Aqui
+     </div>
+     <div class="sub-node target" data-accept="Vagina" style="right: 35%; top: 55%;">
+      Arrastar<br>
+      Aqui
+     </div><!-- Nível 3: Sub-nós de Órgãos Principais (Centro inferior) -->
+     <div class="sub-node target" data-accept="Glândulas Bulbouretrais" style="left: 25%; top: 81%;">
+      Arrastar<br>
+      Aqui
+     </div>
+     <div class="sub-node target" data-accept="Vulva" style="right: 25%; top: 81%;">
+      Arrastar<br>
+      Aqui
+     </div>
+     <div class="sub-node target" data-accept="Uretra" style="left: 18%; top: 68%;">
+      Arrastar<br>
+      Aqui
+     </div>
+     <div class="sub-node target" data-accept="Pênis" style="left: 35%; top: 81%;">
+      Arrastar<br>
+      Aqui
+     </div>
+    </div>
+   </div>
+   <div id="score-container">
+    <div id="score-text">
+     ✨ Acertos: <span id="score">0</span> / 24
+    </div>
+   </div>
+   <div id="success-message"></div><button onclick="resetGame()">🔄 Reiniciar Jogo</button>
+  </div>
+  <script>
+        const defaultConfig = {
+            game_title: "🧬 Monte o Mapa Mental do Sistema Genital!",
+            instructions: "Arraste as palavras da esquerda para os círculos no mapa mental! 🎯",
+            success_message: "🎉 Parabéns! Você completou o mapa mental corretamente!",
+            primary_color: "#667eea",
+            secondary_color: "#764ba2",
+            success_color: "#28a745",
+            background_color: "#ffffff",
+            text_color: "#495057"
+        };
+
+        let config = { ...defaultConfig };
+        let score = 0;
+        let totalTargets = 24;
+
+        // Inicializar SDK
+        if (window.elementSdk) {
+            window.elementSdk.init({
+                defaultConfig: defaultConfig,
+                onConfigChange: async (newConfig) => {
+                    config = { ...defaultConfig, ...newConfig };
+                    updateUIFromConfig();
+                },
+                mapToCapabilities: (cfg) => ({
+                    recolorables: [
+                        {
+                            get: () => cfg.primary_color || defaultConfig.primary_color,
+                            set: (value) => {
+                                cfg.primary_color = value;
+                                window.elementSdk.setConfig({ primary_color: value });
+                            }
+                        },
+                        {
+                            get: () => cfg.success_color || defaultConfig.success_color,
+                            set: (value) => {
+                                cfg.success_color = value;
+                                window.elementSdk.setConfig({ success_color: value });
+                            }
+                        },
+                        {
+                            get: () => cfg.background_color || defaultConfig.background_color,
+                            set: (value) => {
+                                cfg.background_color = value;
+                                window.elementSdk.setConfig({ background_color: value });
+                            }
+                        },
+                        {
+                            get: () => cfg.text_color || defaultConfig.text_color,
+                            set: (value) => {
+                                cfg.text_color = value;
+                                window.elementSdk.setConfig({ text_color: value });
+                            }
+                        }
+                    ],
+                    borderables: [],
+                    fontEditable: undefined,
+                    fontSizeable: undefined
+                }),
+                mapToEditPanelValues: (cfg) => new Map([
+                    ["game_title", cfg.game_title || defaultConfig.game_title],
+                    ["instructions", cfg.instructions || defaultConfig.instructions],
+                    ["success_message", cfg.success_message || defaultConfig.success_message]
+                ])
+            });
+        }
+
+        function updateUIFromConfig() {
+            document.getElementById('game-title').innerHTML = config.game_title || defaultConfig.game_title;
+            document.getElementById('instructions').textContent = config.instructions || defaultConfig.instructions;
+            
+            const appWrapper = document.querySelector('.app-wrapper');
+            appWrapper.style.background = `linear-gradient(135deg, ${config.primary_color || defaultConfig.primary_color} 0%, ${config.secondary_color || defaultConfig.secondary_color} 100%)`;
+            
+            document.querySelectorAll('.draggable:not(.correct)').forEach(el => {
+                el.style.background = `linear-gradient(135deg, ${config.primary_color || defaultConfig.primary_color} 0%, ${config.secondary_color || defaultConfig.secondary_color} 100%)`;
+            });
+            
+            document.querySelectorAll('.draggable.correct').forEach(el => {
+                el.style.background = `linear-gradient(135deg, ${config.success_color || defaultConfig.success_color} 0%, #20c997 100%)`;
+            });
+            
+            document.querySelectorAll('button').forEach(el => {
+                el.style.background = `linear-gradient(135deg, ${config.primary_color || defaultConfig.primary_color} 0%, ${config.secondary_color || defaultConfig.secondary_color} 100%)`;
+            });
+            
+            const gameContainer = document.getElementById('game-container');
+            gameContainer.style.backgroundColor = config.background_color || defaultConfig.background_color;
+            
+            document.querySelectorAll('h2, #score-text').forEach(el => {
+                el.style.color = config.text_color || defaultConfig.text_color;
+            });
+        }
+
+        // Drag and Drop functionality
+        const draggables = document.querySelectorAll('.draggable');
+        const targets = document.querySelectorAll('.target');
+
+        draggables.forEach(draggable => {
+            draggable.addEventListener('dragstart', (e) => {
+                if (!draggable.classList.contains('correct')) {
+                    e.dataTransfer.setData('text/plain', draggable.dataset.word);
+                    e.dataTransfer.effectAllowed = 'move';
+                }
+            });
+        });
+
+        targets.forEach(target => {
+            target.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                if (!target.classList.contains('filled')) {
+                    target.classList.add('drag-over');
+                }
+            });
+
+            target.addEventListener('dragleave', () => {
+                target.classList.remove('drag-over');
+            });
+
+            target.addEventListener('drop', (e) => {
+                e.preventDefault();
+                target.classList.remove('drag-over');
+                
+                if (target.classList.contains('filled')) {
+                    return;
+                }
+
+                const word = e.dataTransfer.getData('text/plain');
+                const acceptedWord = target.dataset.accept;
+
+                if (word === acceptedWord) {
+                    target.classList.add('filled');
+                    target.innerHTML = `<div class="dropped-word">${word}</div>`;
+                    
+                    const draggableElement = Array.from(draggables).find(el => el.dataset.word === word);
+                    if (draggableElement) {
+                        draggableElement.classList.add('correct');
+                        draggableElement.draggable = false;
+                    }
+                    
+                    score++;
+                    updateScore();
+                }
+            });
+        });
+
+        function updateScore() {
+            document.getElementById('score').textContent = score;
+            
+            if (score === totalTargets) {
+                const successMsg = document.getElementById('success-message');
+                successMsg.textContent = config.success_message || defaultConfig.success_message;
+                successMsg.style.display = 'block';
+                successMsg.style.background = `linear-gradient(135deg, ${config.success_color || defaultConfig.success_color} 0%, #20c997 100%)`;
+            }
+        }
+
+        function resetGame() {
+            score = 0;
+            updateScore();
+            
+            document.getElementById('success-message').style.display = 'none';
+            
+            targets.forEach(target => {
+                target.classList.remove('filled');
+                target.innerHTML = 'Arrastar<br>Aqui';
+            });
+            
+            draggables.forEach(draggable => {
+                draggable.classList.remove('correct');
+                draggable.draggable = true;
+                draggable.style.background = `linear-gradient(135deg, ${config.primary_color || defaultConfig.primary_color} 0%, ${config.secondary_color || defaultConfig.secondary_color} 100%)`;
+            });
+        }
+    </script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Explorador do Sistema Genital!</title>
+  <script src="/_sdk/element_sdk.js"></script>
+  <style>
+        body {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        html {
+            height: 100%;
+            width: 100%;
+        }
+        
+        .app-wrapper {
+            width: 100%;
+            min-height: 100%;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            padding: 2rem 1rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            overflow-x: hidden;
+        }
+        
+        .bubble {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.6;
+            animation: float-up linear infinite;
+            pointer-events: none;
+        }
+        
+        @keyframes float-up {
+            0% {
+                transform: translateY(100vh) scale(0);
+                opacity: 0;
+            }
+            10% {
+                opacity: 0.6;
+            }
+            90% {
+                opacity: 0.6;
+            }
+            100% {
+                transform: translateY(-100vh) scale(1);
+                opacity: 0;
+            }
+        }
+        
+        .bubble:nth-child(1) { left: 10%; width: 80px; height: 80px; background: rgba(255, 182, 193, 0.6); animation-duration: 15s; animation-delay: 0s; }
+        .bubble:nth-child(2) { left: 20%; width: 60px; height: 60px; background: rgba(173, 216, 230, 0.6); animation-duration: 12s; animation-delay: 2s; }
+        .bubble:nth-child(3) { left: 35%; width: 100px; height: 100px; background: rgba(255, 255, 153, 0.6); animation-duration: 18s; animation-delay: 4s; }
+        .bubble:nth-child(4) { left: 50%; width: 70px; height: 70px; background: rgba(152, 251, 152, 0.6); animation-duration: 14s; animation-delay: 1s; }
+        .bubble:nth-child(5) { left: 65%; width: 90px; height: 90px; background: rgba(221, 160, 221, 0.6); animation-duration: 16s; animation-delay: 3s; }
+        .bubble:nth-child(6) { left: 75%; width: 65px; height: 65px; background: rgba(255, 218, 185, 0.6); animation-duration: 13s; animation-delay: 5s; }
+        .bubble:nth-child(7) { left: 85%; width: 85px; height: 85px; background: rgba(176, 224, 230, 0.6); animation-duration: 17s; animation-delay: 2.5s; }
+        .bubble:nth-child(8) { left: 15%; width: 75px; height: 75px; background: rgba(255, 192, 203, 0.6); animation-duration: 15.5s; animation-delay: 4.5s; }
+        
+        h1 {
+            color: #ffffff;
+            text-align: center;
+            margin: 0 0 1rem 0;
+            font-size: 2rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .instructions {
+            color: #ffffff;
+            text-align: center;
+            margin-bottom: 1.5rem;
+            font-size: 1.1rem;
+            opacity: 0.95;
+        }
+        
+        #game-container {
+            display: flex;
+            flex-direction: row;
+            width: 100%;
+            max-width: 1400px;
+            gap: 1.5rem;
+            background-color: #ffffff;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+        
+        #draggable-words {
+            flex: 0 0 300px;
+            padding: 1.5rem;
+            border: 4px solid #ffd700;
+            border-radius: 16px;
+            background: linear-gradient(135deg, #ffebcd 0%, #ffd700 100%);
+            max-height: 800px;
+            overflow-y: auto;
+            box-shadow: 0 8px 24px rgba(255, 215, 0, 0.4);
+        }
+        
+        #draggable-words h2 {
+            color: #8b4513;
+            font-size: 1.4rem;
+            margin: 0 0 1rem 0;
+            text-align: center;
+            border-bottom: 3px solid #ff6b6b;
+            padding-bottom: 0.5rem;
+            text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.5);
+        }
+        
+        .draggable {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ff8e53 100%);
+            color: white;
+            padding: 0.7rem 1rem;
+            margin: 0.5rem 0;
+            border-radius: 12px;
+            cursor: grab;
+            text-align: center;
+            font-size: 1rem;
+            font-weight: 600;
+            box-shadow: 0 6px 12px rgba(255, 107, 107, 0.4);
+            transition: all 0.3s ease;
+            user-select: none;
+            border: 3px solid #ff8e53;
+        }
+        
+        .draggable:hover {
+            transform: translateY(-4px) scale(1.05);
+            box-shadow: 0 8px 20px rgba(255, 107, 107, 0.6);
+        }
+        
+        .draggable:active {
+            cursor: grabbing;
+            transform: scale(0.95);
+        }
+        
+        .draggable.correct {
+            background: linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%);
+            cursor: default;
+            opacity: 0.7;
+            border-color: #44a08d;
+        }
+        
+        .draggable.correct:hover {
+            transform: none;
+        }
+        
+        #mind-map-targets {
+            flex: 1;
+            padding: 2rem;
+            border: 4px solid #ff6b6b;
+            border-radius: 16px;
+            background: linear-gradient(135deg, #e0f7fa 0%, #b2ebf2 100%);
+            position: relative;
+            min-height: 1000px;
+            overflow-y: auto;
+            box-shadow: 0 8px 24px rgba(255, 107, 107, 0.4);
+        }
+        
+        .details-container {
+            display: flex;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 2rem;
+        }
+        
+        .target-group {
+            flex: 1;
+            min-width: 400px;
+            padding: 1.5rem;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 12px;
+            border: 2px solid rgba(255, 255, 255, 0.5);
+        }
+        
+        .target-group h3 {
+            color: #333;
+            font-size: 1.3rem;
+            margin: 0 0 1rem 0;
+            text-align: center;
+            padding: 0.5rem;
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 8px;
+            text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8);
+        }
+        
+        .target-group .target {
+            background: linear-gradient(135deg, #9c27b0 0%, #e91e63 100%);
+            color: white;
+            padding: 0.8rem 1rem;
+            margin: 0.5rem 0;
+            border-radius: 10px;
+            border: 3px dashed rgba(255, 255, 255, 0.9);
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-align: left;
+            transition: all 0.3s ease;
+        }
+        
+        .target-group .sub-target {
+            margin-left: 1.5rem;
+            background: linear-gradient(135deg, #4caf50 0%, #66bb6a 100%);
+            font-size: 0.85rem;
+        }
+        
+        .target-group .sub-sub-target {
+            margin-left: 3rem;
+            background: linear-gradient(135deg, #2196f3 0%, #03a9f4 100%);
+            border-style: solid;
+            border-color: white;
+            opacity: 0.9;
+            font-size: 0.8rem;
+            cursor: default;
+        }
+        
+        .flowchart-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3rem;
+            padding: 2rem 0;
+        }
+        
+        .flowchart-level {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.5rem;
+            width: 100%;
+        }
+        
+        .flowchart-row {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+            width: 100%;
+        }
+        
+        .flow-node {
+            min-width: 160px;
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.95rem;
+            font-weight: 700;
+            text-align: center;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+        
+        .flow-node:hover {
+            transform: scale(1.05);
+        }
+        
+        .root-node {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ff8e53 100%);
+            border: 5px solid #ffd700;
+            color: white;
+            font-size: 1.4rem;
+            font-weight: 800;
+            min-width: 250px;
+            padding: 1.5rem 2rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        .level1-node {
+            background: linear-gradient(135deg, #9c27b0 0%, #e91e63 100%);
+            border: 4px solid #ffd700;
+            color: white;
+            min-width: 180px;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+        }
+        
+        .level2-node {
+            background: linear-gradient(135deg, #4caf50 0%, #66bb6a 100%);
+            border: 3px solid #ffd700;
+            color: white;
+            min-width: 140px;
+            font-size: 0.85rem;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+        }
+        
+        .target {
+            border: 3px dashed rgba(255, 255, 255, 0.9);
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(5px);
+        }
+        
+        .target.filled {
+            border-style: solid;
+            border-color: white;
+            background: rgba(255, 255, 255, 0.4);
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.7);
+        }
+        
+        .target.drag-over {
+            background: rgba(255, 255, 255, 0.5);
+            border-color: white;
+            border-style: solid;
+            transform: scale(1.1);
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.8);
+        }
+        
+        .target.filled {
+            border-color: white;
+            border-style: solid;
+            background: rgba(255, 255, 255, 0.4);
+            color: white;
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.6);
+        }
+        
+        .target .dropped-word {
+            color: white;
+            font-weight: 700;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.4);
+            font-size: 0.85rem;
+        }
+        
+        #score-container {
+            margin-top: 1.5rem;
+            padding: 1.2rem 2.5rem;
+            background: linear-gradient(135deg, #ffeb3b 0%, #ffc107 100%);
+            border-radius: 16px;
+            box-shadow: 0 6px 20px rgba(255, 193, 7, 0.5);
+            text-align: center;
+            border: 4px solid #ff9800;
+        }
+        
+        #score-text {
+            font-size: 1.5rem;
+            color: #bf360c;
+            font-weight: 700;
+            text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.5);
+        }
+        
+        #success-message {
+            display: none;
+            margin-top: 1rem;
+            padding: 1.5rem 2.5rem;
+            background: linear-gradient(135deg, #4caf50 0%, #8bc34a 100%);
+            color: white;
+            border-radius: 16px;
+            font-size: 1.4rem;
+            font-weight: 700;
+            box-shadow: 0 6px 24px rgba(76, 175, 80, 0.6);
+            animation: slideIn 0.5s ease, pulse 2s infinite;
+            border: 4px solid #388e3c;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+        }
+        
+        button {
+            padding: 1rem 2.5rem;
+            font-size: 1.2rem;
+            background: linear-gradient(135deg, #ff5722 0%, #f44336 100%);
+            color: white;
+            border: 4px solid #d32f2f;
+            border-radius: 16px;
+            cursor: pointer;
+            margin-top: 1rem;
+            font-weight: 700;
+            box-shadow: 0 6px 20px rgba(244, 67, 54, 0.5);
+            transition: all 0.3s ease;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+        }
+        
+        button:hover {
+            transform: translateY(-4px) scale(1.05);
+            box-shadow: 0 8px 28px rgba(244, 67, 54, 0.7);
+        }
+        
+        button:active {
+            transform: translateY(0) scale(0.95);
+        }
+        
+        @media (max-width: 768px) {
+            #game-container {
+                flex-direction: column;
+            }
+            
+            #draggable-words {
+                flex: 1;
+                max-height: none;
+                flex-basis: auto;
+            }
+            
+            #mind-map-targets {
+                min-height: 1200px;
+                max-height: none;
+            }
+            
+            .central-node {
+                width: 120px;
+                height: 120px;
+                font-size: 0.9rem;
+            }
+            
+            .branch-node {
+                width: 90px;
+                height: 90px;
+                font-size: 0.75rem;
+            }
+            
+            .sub-node {
+                min-width: 70px;
+                min-height: 70px;
+                font-size: 0.65rem;
+            }
+            
+            h1 {
+                font-size: 1.6rem;
+            }
+            
+            .instructions {
+                font-size: 1rem;
+            }
+            
+            .draggable {
+                font-size: 0.95rem;
+                padding: 0.6rem 0.9rem;
+            }
+            
+            button {
+                padding: 0.9rem 2rem;
+                font-size: 1.1rem;
+            }
+            
+            #score-text {
+                font-size: 1.3rem;
+            }
+            
+            .bubble {
+                display: none;
+            }
+        }
+    </style>
+  <div class="app-wrapper">
+   <div class="bubble"></div>
+   <div class="bubble"></div>
+   <div class="bubble"></div>
+   <div class="bubble"></div>
+   <div class="bubble"></div>
+   <div class="bubble"></div>
+   <div class="bubble"></div>
+   <div class="bubble"></div>
+   <h1 id="game-title">Monte o Mapa Mental do Sistema Genital!</h1>
+   <p class="instructions" id="instructions">Arraste as palavras da esquerda para os lugares corretos no mapa mental hierárquico.</p>
+   <div id="game-container">
+    <div id="draggable-words">
+     <h2>Palavras</h2>
+     <div class="draggable" draggable="true" data-word="Sistema Genital Masculino">
+      Sistema Genital Masculino
+     </div>
+     <div class="draggable" draggable="true" data-word="Sistema Genital Feminino">
+      Sistema Genital Feminino
+     </div>
+     <div class="draggable" draggable="true" data-word="Função Principal">
+      Função Principal
+     </div>
+     <div class="draggable" draggable="true" data-word="Órgãos Principais">
+      Órgãos Principais
+     </div>
+     <div class="draggable" draggable="true" data-word="Hormônios">
+      Hormônios
+     </div>
+     <div class="draggable" draggable="true" data-word="Testículos">
+      Testículos
+     </div>
+     <div class="draggable" draggable="true" data-word="Epidídimo">
+      Epidídimo
+     </div>
+     <div class="draggable" draggable="true" data-word="Ducto Deferente">
+      Ducto Deferente
+     </div>
+     <div class="draggable" draggable="true" data-word="Vesículas Seminais">
+      Vesículas Seminais
+     </div>
+     <div class="draggable" draggable="true" data-word="Próstata">
+      Próstata
+     </div>
+     <div class="draggable" draggable="true" data-word="Glândulas Bulbouretrais">
+      Glândulas Bulbouretrais
+     </div>
+     <div class="draggable" draggable="true" data-word="Uretra">
+      Uretra
+     </div>
+     <div class="draggable" draggable="true" data-word="Pênis">
+      Pênis
+     </div>
+     <div class="draggable" draggable="true" data-word="Testosterona">
+      Testosterona
+     </div>
+     <div class="draggable" draggable="true" data-word="Ovários">
+      Ovários
+     </div>
+     <div class="draggable" draggable="true" data-word="Tubas Uterinas">
+      Tubas Uterinas
+     </div>
+     <div class="draggable" draggable="true" data-word="Útero">
+      Útero
+     </div>
+     <div class="draggable" draggable="true" data-word="Vagina">
+      Vagina
+     </div>
+     <div class="draggable" draggable="true" data-word="Vulva">
+      Vulva
+     </div>
+     <div class="draggable" draggable="true" data-word="Estrogênio">
+      Estrogênio
+     </div>
+     <div class="draggable" draggable="true" data-word="Progesterona">
+      Progesterona
+     </div>
+     <div class="draggable" draggable="true" data-word="Ciclo Menstrual">
+      Ciclo Menstrual
+     </div>
+    </div>
+    <div id="mind-map-targets">
+     <div class="flowchart-container"><!-- NÍVEL 0: NÓ RAIZ -->
+      <div class="flowchart-level">
+       <div class="flow-node root-node">
+        SISTEMA GENITAL
+       </div>
+      </div><!-- NÍVEL 1: MASCULINO E FEMININO -->
+      <div class="flowchart-level">
+       <div class="flowchart-row">
+        <div class="flow-node level1-node target" data-accept="Sistema Genital Masculino">
+         Arrastar Aqui
+        </div>
+        <div class="flow-node level1-node target" data-accept="Sistema Genital Feminino">
+         Arrastar Aqui
+        </div>
+       </div>
+      </div>
+     </div>
+     <div class="details-container">
+      <div class="target-group">
+       <h3>🔵 MASCULINO - DETALHES</h3>
+       <div class="target" data-accept="Função Principal">
+        (Arrastar aqui)
+       </div>
+       <div class="target sub-sub-target">
+        → → Produção de espermatozoides
+       </div>
+       <div class="target sub-sub-target">
+        → → Produção de hormônios
+       </div>
+       <div class="target" data-accept="Órgãos Principais">
+        (Arrastar aqui)
+       </div>
+       <div class="target sub-target" data-accept="Testículos">
+        → (Arrastar aqui)
+       </div>
+       <div class="target sub-sub-target">
+        → → Localização: bolsa escrotal
+       </div>
+       <div class="target sub-sub-target">
+        → → Temperatura: 2-3°C abaixo do corpo
+       </div>
+       <div class="target sub-sub-target">
+        → → Formato oval (4-5 cm cada)
+       </div>
+       <div class="target sub-sub-target">
+        → → Espermatogênese (produção esperm.)
+       </div>
+       <div class="target sub-sub-target">
+        → → Células de Leydig (prod. testosterona)
+       </div>
+       <div class="target sub-sub-target">
+        → → Túbulos seminíferos (local produção)
+       </div>
+       <div class="target sub-target" data-accept="Epidídimo">
+        → (Arrastar aqui)
+       </div>
+       <div class="target sub-sub-target">
+        → → Estrutura tubular enovelada
+       </div>
+       <div class="target sub-sub-target">
+        → → Localização: sobre os testículos
+       </div>
+       <div class="target sub-sub-target">
+        → → Maturação de espermatozoides (10-14 dias)
+       </div>
+       <div class="target sub-sub-target">
+        → → Armazenamento temporário
+       </div>
+       <div class="target sub-sub-target">
+        → → Desenvolvimento da motilidade
+       </div>
+       <div class="target sub-target" data-accept="Ducto Deferente">
+        → (Arrastar aqui)
+       </div>
+       <div class="target sub-sub-target">
+        → ������� Condução de espermatozoides
+       </div>
+       <div class="target sub-target" data-accept="Vesículas Seminais">
+        → (Arrastar aqui)
+       </div>
+       <div class="target sub-sub-target">
+        → → Líquido seminal (frutose)
+       </div>
+       <div class="target sub-sub-target">
+        → → Nutrição dos espermatozoides
+       </div>
+       <div class="target sub-target" data-accept="Próstata">
+        → (Arrastar aqui)
+       </div>
+       <div class="target sub-sub-target">
+        → → Líquido prostático (ativação)
+       </div>
+       <div class="target sub-sub-target">
+        → → Proteção do sêmen
+       </div>
+       <div class="target sub-target" data-accept="Glândulas Bulbouretrais">
+        → (Arrastar aqui)
+       </div>
+       <div class="target sub-sub-target">
+        → → Líquido pré-ejaculatório (lubrifica��ão)
+       </div>
+       <div class="target sub-target" data-accept="Uretra">
+        → (Arrastar aqui)
+       </div>
+       <div class="target sub-sub-target">
+        → → Passagem de urina e sêmen
+       </div>
+       <div class="target sub-target" data-accept="Pênis">
+        → (Arrastar aqui)
+       </div>
+       <div class="target sub-sub-target">
+        → → Corpos Cavernosos (ereção)
+       </div>
+       <div class="target sub-sub-target">
+        → → Órgão copulador
+       </div>
+       <div class="target" data-accept="Hormônios">
+        (Arrastar aqui)
+       </div>
+       <div class="target sub-target" data-accept="Testosterona">
+        → (Arrastar aqui)
+       </div>
+       <div class="target sub-sub-target">
+        → → Características sexuais secundárias
+       </div>
+       <div class="target sub-sub-target">
+        → → Desenvolvimento muscular
+       </div>
+       <div class="target sub-sub-target">
+        → → Espermatogênese
+       </div>
+      </div>
+      <div class="target-group">
+       <h3>🔴 FEMININO - DETALHES</h3>
+       <div class="target" data-accept="Função Principal">
+        (Arrastar aqui)
+       </div>
+       <div class="target sub-sub-target">
+        → → Produção de óvulos
+       </div>
+       <div class="target sub-sub-target">
+        → → Produção de hormônios
+       </div>
+       <div class="target sub-sub-target">
+        → → Gestação
+       </div>
+       <div class="target" data-accept="Órgãos Principais">
+        (Arrastar aqui)
+       </div>
+       <div class="target sub-target" data-accept="Ovários">
+        → (Arrastar aqui)
+       </div>
+       <div class="target sub-sub-target">
+        → → Oogênese (produção óvulos)
+       </div>
+       <div class="target sub-sub-target">
+        → → Folículos Ovarianos (maturação)
+       </div>
+       <div class="target sub-target" data-accept="Tubas Uterinas">
+        → (Arrastar aqui)
+       </div>
+       <div class="target sub-sub-target">
+        → → Fertilização (local)
+       </div>
+       <div class="target sub-sub-target">
+        → → Transporte do óvulo
+       </div>
+       <div class="target sub-target" data-accept="Útero">
+        → (Arrastar aqui)
+       </div>
+       <div class="target sub-sub-target">
+        → → Endométrio (camada interna)
+       </div>
+       <div class="target sub-sub-target">
+        → → Miométrio (camada muscular)
+       </div>
+       <div class="target sub-sub-target">
+        → → Gestação (desenvolvimento fetal)
+       </div>
+       <div class="target sub-target" data-accept="Vagina">
+        → (Arrastar aqui)
+       </div>
+       <div class="target sub-sub-target">
+        → → Canal do parto
+       </div>
+       <div class="target sub-sub-target">
+        → → Órgão copulador
+       </div>
+       <div class="target sub-target" data-accept="Vulva">
+        → (Arrastar aqui)
+       </div>
+       <div class="target sub-sub-target">
+        → → Clitóris (sensorial)
+       </div>
+       <div class="target sub-sub-target">
+        ���� → Lábios (proteção)
+       </div>
+       <div class="target" data-accept="Hormônios">
+        (Arrastar aqui)
+       </div>
+       <div class="target sub-target" data-accept="Estrogênio">
+        → (Arrastar aqui)
+       </div>
+       <div class="target sub-sub-target">
+        → → Desenvolvimento sexual
+       </div>
+       <div class="target sub-sub-target">
+        → → Ciclo menstrual
+       </div>
+       <div class="target sub-target" data-accept="Progesterona">
+        → (Arrastar aqui)
+       </div>
+       <div class="target sub-sub-target">
+        → → Preparaç��o uterina
+       </div>
+       <div class="target sub-sub-target">
+        → → Manutenção gravidez
+       </div>
+       <div class="target" data-accept="Ciclo Menstrual">
+        (Arrastar aqui)
+       </div>
+       <div class="target sub-sub-target">
+        → → Fase folicular
+       </div>
+       <div class="target sub-sub-target">
+        → → Ovulação
+       </div>
+       <div class="target sub-sub-target">
+        → → Fase lútea
+       </div>
+       <div class="target sub-sub-target">
+        → → Menstruação
+       </div>
+      </div>
+     </div>
+    </div>
+   </div>
+   <div id="score-container">
+    <div id="score-text">
+     Acertos: <span id="score">0</span> / 22
+    </div>
+   </div>
+   <div id="success-message"></div><button onclick="resetGame()">Reiniciar Jogo</button>
+  </div>
+  <script>
+        const defaultConfig = {
+            game_title: "Monte o Mapa Mental do Sistema Genital!",
+            instructions: "Arraste as palavras da esquerda para os lugares corretos no mapa mental hierárquico.",
+            success_message: "🎉 Parabéns! Você completou o mapa mental hierárquico corretamente!",
+            primary_color: "#667eea",
+            secondary_color: "#764ba2",
+            success_color: "#28a745",
+            background_color: "#ffffff",
+            text_color: "#495057"
+        };
+
+        let config = { ...defaultConfig };
+        let score = 0;
+        let totalTargets = 22;
+
+        // Inicializar SDK
+        if (window.elementSdk) {
+            window.elementSdk.init({
+                defaultConfig: defaultConfig,
+                onConfigChange: async (newConfig) => {
+                    config = { ...defaultConfig, ...newConfig };
+                    updateUIFromConfig();
+                },
+                mapToCapabilities: (cfg) => ({
+                    recolorables: [
+                        {
+                            get: () => cfg.primary_color || defaultConfig.primary_color,
+                            set: (value) => {
+                                cfg.primary_color = value;
+                                window.elementSdk.setConfig({ primary_color: value });
+                            }
+                        },
+                        {
+                            get: () => cfg.success_color || defaultConfig.success_color,
+                            set: (value) => {
+                                cfg.success_color = value;
+                                window.elementSdk.setConfig({ success_color: value });
+                            }
+                        },
+                        {
+                            get: () => cfg.background_color || defaultConfig.background_color,
+                            set: (value) => {
+                                cfg.background_color = value;
+                                window.elementSdk.setConfig({ background_color: value });
+                            }
+                        },
+                        {
+                            get: () => cfg.text_color || defaultConfig.text_color,
+                            set: (value) => {
+                                cfg.text_color = value;
+                                window.elementSdk.setConfig({ text_color: value });
+                            }
+                        }
+                    ],
+                    borderables: [],
+                    fontEditable: undefined,
+                    fontSizeable: undefined
+                }),
+                mapToEditPanelValues: (cfg) => new Map([
+                    ["game_title", cfg.game_title || defaultConfig.game_title],
+                    ["instructions", cfg.instructions || defaultConfig.instructions],
+                    ["success_message", cfg.success_message || defaultConfig.success_message]
+                ])
+            });
+        }
+
+        function updateUIFromConfig() {
+            document.getElementById('game-title').textContent = config.game_title || defaultConfig.game_title;
+            document.getElementById('instructions').textContent = config.instructions || defaultConfig.instructions;
+            
+            const appWrapper = document.querySelector('.app-wrapper');
+            appWrapper.style.background = `linear-gradient(135deg, ${config.primary_color || defaultConfig.primary_color} 0%, ${config.secondary_color || defaultConfig.secondary_color} 100%)`;
+            
+            document.querySelectorAll('.draggable:not(.correct)').forEach(el => {
+                el.style.background = `linear-gradient(135deg, ${config.primary_color || defaultConfig.primary_color} 0%, ${config.secondary_color || defaultConfig.secondary_color} 100%)`;
+            });
+            
+            document.querySelectorAll('.draggable.correct').forEach(el => {
+                el.style.background = `linear-gradient(135deg, ${config.success_color || defaultConfig.success_color} 0%, #20c997 100%)`;
+            });
+            
+            document.querySelectorAll('button').forEach(el => {
+                el.style.background = `linear-gradient(135deg, ${config.primary_color || defaultConfig.primary_color} 0%, ${config.secondary_color || defaultConfig.secondary_color} 100%)`;
+            });
+            
+            const gameContainer = document.getElementById('game-container');
+            gameContainer.style.backgroundColor = config.background_color || defaultConfig.background_color;
+            
+            document.querySelectorAll('h2, #score-text').forEach(el => {
+                el.style.color = config.text_color || defaultConfig.text_color;
+            });
+        }
+
+        // Drag and Drop functionality
+        const draggables = document.querySelectorAll('.draggable');
+        const targets = document.querySelectorAll('.target');
+
+        draggables.forEach(draggable => {
+            draggable.addEventListener('dragstart', (e) => {
+                if (!draggable.classList.contains('correct')) {
+                    e.dataTransfer.setData('text/plain', draggable.dataset.word);
+                    e.dataTransfer.effectAllowed = 'move';
+                }
+            });
+        });
+
+        targets.forEach(target => {
+            target.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                if (!target.classList.contains('filled') && !target.classList.contains('sub-sub-target')) {
+                    target.classList.add('drag-over');
+                }
+            });
+
+            target.addEventListener('dragleave', () => {
+                target.classList.remove('drag-over');
+            });
+
+            target.addEventListener('drop', (e) => {
+                e.preventDefault();
+                target.classList.remove('drag-over');
+                
+                if (target.classList.contains('filled') || target.classList.contains('sub-sub-target')) {
+                    return;
+                }
+
+                const word = e.dataTransfer.getData('text/plain');
+                const acceptedWord = target.dataset.accept;
+
+                if (word === acceptedWord) {
+                    target.classList.add('filled');
+                    const arrow = target.classList.contains('sub-target') ? '→ ' : '';
+                    target.innerHTML = `${arrow}<div class="dropped-word">${word}</div>`;
+                    
+                    const draggableElement = Array.from(draggables).find(el => el.dataset.word === word);
+                    if (draggableElement) {
+                        draggableElement.classList.add('correct');
+                        draggableElement.draggable = false;
+                    }
+                    
+                    score++;
+                    updateScore();
+                }
+            });
+        });
+
+        function updateScore() {
+            document.getElementById('score').textContent = score;
+            
+            if (score === totalTargets) {
+                const successMsg = document.getElementById('success-message');
+                successMsg.textContent = config.success_message || defaultConfig.success_message;
+                successMsg.style.display = 'block';
+                successMsg.style.background = `linear-gradient(135deg, ${config.success_color || defaultConfig.success_color} 0%, #20c997 100%)`;
+            }
+        }
+
+        function resetGame() {
+            score = 0;
+            updateScore();
+            
+            document.getElementById('success-message').style.display = 'none';
+            
+            const originalLabels = {
+                'Fun����ão Principal': '(Arrastar aqui)',
+                'Órgãos Principais': '(Arrastar aqui)',
+                'Testículos': '→ (Arrastar aqui)',
+                'Epidídimo': '→ (Arrastar aqui)',
+                'Ducto Deferente': '→ (Arrastar aqui)',
+                'Vesículas Seminais': '→ (Arrastar aqui)',
+                'Próstata': '→ (Arrastar aqui)',
+                'Glândulas Bulbouretrais': '→ (Arrastar aqui)',
+                'Uretra': '→ (Arrastar aqui)',
+                'Pênis': '→ (Arrastar aqui)',
+                'Hormônios': '(Arrastar aqui)',
+                'Testosterona': '→ (Arrastar aqui)',
+                'Ovários': '→ (Arrastar aqui)',
+                'Tubas Uterinas': '→ (Arrastar aqui)',
+                'Útero': '→ (Arrastar aqui)',
+                'Vagina': '→ (Arrastar aqui)',
+                'Vulva': '→ (Arrastar aqui)',
+                'Estrogênio': '→ (Arrastar aqui)',
+                'Progesterona': '→ (Arrastar aqui)',
+                'Ciclo Menstrual': '(Arrastar aqui)'
+            };
+            
+            targets.forEach(target => {
+                if (target.classList.contains('sub-sub-target')) {
+                    return;
+                }
+                
+                target.classList.remove('filled');
+                const acceptWord = target.dataset.accept;
+                if (acceptWord && originalLabels[acceptWord]) {
+                    target.textContent = originalLabels[acceptWord];
+                }
+            });
+            
+            draggables.forEach(draggable => {
+                draggable.classList.remove('correct');
+                draggable.draggable = true;
+                draggable.style.background = `linear-gradient(135deg, ${config.primary_color || defaultConfig.primary_color} 0%, ${config.secondary_color || defaultConfig.secondary_color} 100%)`;
+            });
+        }
+    </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9a3b6fefa067725a',t:'MTc2NDAxMzg0Ny4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
